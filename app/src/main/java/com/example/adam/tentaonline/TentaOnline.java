@@ -27,6 +27,7 @@ public class TentaOnline extends ActionBarActivity implements AsyncResponse{
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_tenta_online);
 
+        //Log.d("START","program has started");
         // LinearLayout myTestLayout = (LinearLayout) findViewById(R.id.linearLayout1);
 
         LinearLayout.LayoutParams LLParams = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT,LinearLayout.LayoutParams.WRAP_CONTENT);
@@ -37,7 +38,8 @@ public class TentaOnline extends ActionBarActivity implements AsyncResponse{
         mainLayout.setOrientation(LinearLayout.VERTICAL);
 
         //String testString = "{\"Exam\":[{\"Type\":\"radio\",\"Question\":\"What is 5*5?\",\"Options\":[\"32\",\"45\",\"25\"]},{\"Type\":\"radio\",\"Question\":\"What was Albert Einstein's favorite color?\",\"Options\":[\"Blue\",\"Red\"]}]}";
-
+        //String testString ="{\\\"Exam\\\":[{\\\"Type\\\":\\\"radio\\\",\\\"Question\\\":\\\"Fraga1\\\",\\\"Options\\\":[\\\"Answer1\\\",\\\"Answer2\\\"]}]}";
+        //createQuestions(testString);
 
         // Sets delegate variable in AndroidGet.java to this
         asyncGetExam.delegate = this;
@@ -49,16 +51,21 @@ public class TentaOnline extends ActionBarActivity implements AsyncResponse{
 
     /** Gets called when the AndroidGet.java finish executing*/
     public void processFinish(String output){
-        Log.d("Output ",output);
+
         createQuestions(output);
         //this you will received result fired from async class of onPostExecute(result) method.
     }
 
     /** Checks the questionType and calls the corresponding functions */
-    public void createQuestions(String testString){
+    public void createQuestions(final String jsonExamString){
+
 
         try{
-            JSONObject examObject = new JSONObject(testString);
+
+            //Log.d("the string is ",jsonExamString);
+            String formatedJsonExamString=jsonExamString.substring(jsonExamString.indexOf("{"), jsonExamString.lastIndexOf("}")+1);
+            JSONObject examObject = new JSONObject(formatedJsonExamString);
+            //Log.d("test","funking");
             JSONArray examArray = examObject.getJSONArray("Exam");
 
             for(int i=0;i< examArray.length();i++){
@@ -70,6 +77,7 @@ public class TentaOnline extends ActionBarActivity implements AsyncResponse{
         }catch (Throwable t){
             Log.d("Threw exception"," " + t);
         }
+
 
     }
 

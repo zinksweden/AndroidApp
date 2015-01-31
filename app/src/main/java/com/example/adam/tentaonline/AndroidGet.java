@@ -53,7 +53,7 @@ public class AndroidGet extends AsyncTask<String,String,Void> {
         }
         //convert response to string
         try {
-            BufferedReader reader = new BufferedReader(new InputStreamReader(is, "iso-8859-1"), 8);
+            BufferedReader reader = new BufferedReader(new InputStreamReader(is, "utf-8"), 8);
             sb = new StringBuilder();
             sb.append(reader.readLine() + "\n");
 
