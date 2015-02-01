@@ -9,6 +9,8 @@ import android.widget.TextView;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.util.Log;
+
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 
 import org.json.JSONArray;
@@ -23,9 +25,11 @@ public class TentaOnline extends ActionBarActivity implements AsyncResponse{
     int number=0;
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
+    public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_tenta_online);
+
+        String courseCode = getIntent().getStringExtra("courseCode");
 
         //Log.d("START","program has started");
         // LinearLayout myTestLayout = (LinearLayout) findViewById(R.id.linearLayout1);
@@ -44,7 +48,7 @@ public class TentaOnline extends ActionBarActivity implements AsyncResponse{
         // Sets delegate variable in AndroidGet.java to this
         asyncGetExam.delegate = this;
         // Execute AndroidGet.java
-        asyncGetExam.execute();
+        asyncGetExam.execute(courseCode);
 
         setContentView(mainLayout);
     }
@@ -57,15 +61,17 @@ public class TentaOnline extends ActionBarActivity implements AsyncResponse{
     }
 
     /** Checks the questionType and calls the corresponding functions */
-    public void createQuestions(final String jsonExamString){
+    public void createQuestions(final String TjsonExamString){
 
 
         try{
 
-            //Log.d("the string is ",jsonExamString);
-            String formatedJsonExamString=jsonExamString.substring(jsonExamString.indexOf("{"), jsonExamString.lastIndexOf("}")+1);
-            JSONObject examObject = new JSONObject(formatedJsonExamString);
-            //Log.d("test","funking");
+            JSONArray examContentArr = new JSONArray(TjsonExamString);
+            JSONObject headerObject = new JSONObject(examContentArr.getString(1));
+            addHeader(headerObject);
+            //  String formatedJsonExamString=jarr.getString(0).substring(jarr.getString(0).indexOf("{"), jarr.getString(0).lastIndexOf("}") + 1);
+            JSONObject examObject = new JSONObject(examContentArr.getString(0));
+
             JSONArray examArray = examObject.getJSONArray("Exam");
 
             for(int i=0;i< examArray.length();i++){
@@ -82,11 +88,35 @@ public class TentaOnline extends ActionBarActivity implements AsyncResponse{
     }
 
 
+    public void addHeader(JSONObject headerObject){
+            //headerObject.getString("");
+
+        try{
+
+            addText(headerObject.getString("Title"),50);
+            addText("Course Director: " + headerObject.getString("Director"),20);
+            addText("Help information: " + headerObject.getString("HelpInfo"),20);
+            addText("Grading levels: " + headerObject.getString("GradingInfo"),20);
+            addText(headerObject.getString("OtherInfo"),20);
+            addText("____________________",20);
+
+
+
+
+        }catch (Throwable t){
+            Log.d("Threw exception"," " + t);
+        }
+
+
+
+    }
+
+
     /** Adds a multiple choise (radio) question */
     public void addRadioQuestion(JSONObject questionObject){
 
         try{
-            addText(questionObject.getString("Question"));
+            addText(questionObject.getString("Question"),25);
             JSONArray optionsArray = questionObject.getJSONArray("Options");
             ArrayList<String> options = new ArrayList<>();
 
@@ -116,11 +146,11 @@ public class TentaOnline extends ActionBarActivity implements AsyncResponse{
     }
 
     /** Adds question to the mainLayout view */
-    public void addText(String question){
+    public void addText(String question, int textSize){
 
         TextView questionView = new TextView(this);
         questionView.setText(question);
-        questionView.setTextSize(50);
+        questionView.setTextSize(textSize);
         mainLayout.addView(questionView);
     }
 

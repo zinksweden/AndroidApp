@@ -6,14 +6,17 @@ import android.widget.Toast;
 
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
+import org.apache.http.HttpVersion;
 import org.apache.http.NameValuePair;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.http.protocol.HTTP;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.apache.http.params.*;
 
 import java.io.BufferedReader;
 import java.io.InputStream;
@@ -39,11 +42,20 @@ public class AndroidGet extends AsyncTask<String,String,Void> {
         ArrayList<NameValuePair> nameValuePairs = new ArrayList<NameValuePair>();
         //http post
         try {
-            Log.d("Exam","Print1");
-            HttpClient httpclient = new DefaultHttpClient();
+
+            //Log.d("KURs",urls[0]);
+
+            HttpParams params = new BasicHttpParams();
+            HttpConnectionParams.setConnectionTimeout(params, 10000);
+            HttpConnectionParams.setSoTimeout(params, 10000);
+            HttpProtocolParams.setVersion(params, HttpVersion.HTTP_1_1);
+            HttpProtocolParams.setContentCharset(params, HTTP.UTF_8);
+            HttpProtocolParams.setUseExpectContinue(params, true);
+
+            HttpClient httpclient = new DefaultHttpClient(params);
 
             //Why to use 10.0.2.2
-            HttpPost httppost = new HttpPost("http://10.0.2.2/android/get.php");  //ändra foldername
+            HttpPost httppost = new HttpPost("http://10.0.2.2/android/get.php?course_code=" + urls[0] );  //ändra foldername
             httppost.setEntity(new UrlEncodedFormEntity(nameValuePairs));
             HttpResponse response = httpclient.execute(httppost);
             HttpEntity entity = response.getEntity();
@@ -57,7 +69,7 @@ public class AndroidGet extends AsyncTask<String,String,Void> {
             sb = new StringBuilder();
             sb.append(reader.readLine() + "\n");
 
-            String line = "0";
+            String line = null;
             while ((line = reader.readLine()) != null) {
                 sb.append(line + "\n");
             }
