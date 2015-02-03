@@ -2,6 +2,7 @@ package com.example.adam.tentaonline;
 
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
+import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.LinearLayout;
@@ -14,6 +15,7 @@ import java.lang.reflect.Array;
 import java.util.ArrayList;
 
 import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
 
 
@@ -21,18 +23,20 @@ import org.json.JSONObject;
 
 public class TentaOnline extends ActionBarActivity implements AsyncResponse{
     LinearLayout mainLayout;
-    AndroidGet asyncGetExam = new AndroidGet();
+
+
     int number=0;
+    String courseCode;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_tenta_online);
 
-        String courseCode = getIntent().getStringExtra("courseCode");
+        courseCode = getIntent().getStringExtra("courseCode");
 
         //Log.d("START","program has started");
-        // LinearLayout myTestLayout = (LinearLayout) findViewById(R.id.linearLayout1);
+        LinearLayout myTestLayout = (LinearLayout) findViewById(R.id.linearLayout1);
 
         LinearLayout.LayoutParams LLParams = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT,LinearLayout.LayoutParams.WRAP_CONTENT);
         LLParams.weight=1;
@@ -40,17 +44,20 @@ public class TentaOnline extends ActionBarActivity implements AsyncResponse{
         mainLayout=new LinearLayout(this);
         mainLayout.setLayoutParams(LLParams);
         mainLayout.setOrientation(LinearLayout.VERTICAL);
+        mainLayout.setBackgroundColor(0xFFFFF);
 
         //String testString = "{\"Exam\":[{\"Type\":\"radio\",\"Question\":\"What is 5*5?\",\"Options\":[\"32\",\"45\",\"25\"]},{\"Type\":\"radio\",\"Question\":\"What was Albert Einstein's favorite color?\",\"Options\":[\"Blue\",\"Red\"]}]}";
         //String testString ="{\\\"Exam\\\":[{\\\"Type\\\":\\\"radio\\\",\\\"Question\\\":\\\"Fraga1\\\",\\\"Options\\\":[\\\"Answer1\\\",\\\"Answer2\\\"]}]}";
         //createQuestions(testString);
 
+        AndroidGet asyncGetExam = new AndroidGet();
         // Sets delegate variable in AndroidGet.java to this
         asyncGetExam.delegate = this;
         // Execute AndroidGet.java
         asyncGetExam.execute(courseCode);
 
-        setContentView(mainLayout);
+        myTestLayout.addView(mainLayout);
+        setContentView(myTestLayout);
     }
 
     /** Gets called when the AndroidGet.java finish executing*/
@@ -93,12 +100,12 @@ public class TentaOnline extends ActionBarActivity implements AsyncResponse{
 
         try{
 
-            addText(headerObject.getString("Title"),50);
-            addText("Course Director: " + headerObject.getString("Director"),20);
-            addText("Help information: " + headerObject.getString("HelpInfo"),20);
-            addText("Grading levels: " + headerObject.getString("GradingInfo"),20);
-            addText(headerObject.getString("OtherInfo"),20);
-            addText("____________________",20);
+            addText(headerObject.getString("Title"),50,true);
+            addText("Course Director: " + headerObject.getString("Director"),20,true);
+            addText("Help information: " + headerObject.getString("HelpInfo"),20,true);
+            addText("Grading levels: " + headerObject.getString("GradingInfo"),20,true);
+            addText(headerObject.getString("OtherInfo"),20,true);
+            addText("______________________________",20,true);
 
 
 
@@ -116,7 +123,7 @@ public class TentaOnline extends ActionBarActivity implements AsyncResponse{
     public void addRadioQuestion(JSONObject questionObject){
 
         try{
-            addText(questionObject.getString("Question"),25);
+            addText(questionObject.getString("Question"),25,false);
             JSONArray optionsArray = questionObject.getJSONArray("Options");
             ArrayList<String> options = new ArrayList<>();
 
@@ -146,9 +153,12 @@ public class TentaOnline extends ActionBarActivity implements AsyncResponse{
     }
 
     /** Adds question to the mainLayout view */
-    public void addText(String question, int textSize){
+    public void addText(String question, int textSize, boolean centerHorizontal){
 
         TextView questionView = new TextView(this);
+        if(centerHorizontal)
+            questionView.setGravity(Gravity.CENTER_HORIZONTAL);
+
         questionView.setText(question);
         questionView.setTextSize(textSize);
         mainLayout.addView(questionView);
@@ -173,11 +183,41 @@ public class TentaOnline extends ActionBarActivity implements AsyncResponse{
 
         // Checks if submit exam was clicked
         if (id == R.id.menuSubmit) {
+            JSONObject answersObj;
+            JSONArray answersArr = new JSONArray();
+            JSONObject answersFinalObj = new JSONObject();
             for(int i=0;i<number;i++){
                 RadioGroup radioGroup=(RadioGroup)findViewById(1000+i);
-                String value = ((RadioButton)findViewById(radioGroup.getCheckedRadioButtonId() )).getText().toString();
-                Log.d("Testing","Submit clicked " + value);
+                RadioButton radioButton = (RadioButton) findViewById(radioGroup.getCheckedRadioButtonId());
+                answersObj = new JSONObject();
+                try{
+                    answersObj.put("ID",i);
+                    answersObj.put("answer", "option" + radioGroup.indexOfChild(radioButton));
+                    answersArr.put(answersObj);
+
+                }catch (JSONException e){
+                    Log.d("Threw exception"," " + e);
+                }
+
             }
+            try{
+                answersFinalObj.put("Student","DVGC30-003");
+                answersFinalObj.put("Answers",answersArr);
+
+            }catch (JSONException e){
+                Log.d("Threw exception"," " + e);
+            }
+
+            Log.d("JSONHole", answersFinalObj.toString());
+
+            AndroidPost asyncPostExam = new AndroidPost();
+            asyncPostExam.delegate = this;
+
+           // {"Student":"kalle","Answers":[{"ID":0,"Answer":"option1"},{"ID":1,"Answer":"option2"}]}
+
+            asyncPostExam.execute(courseCode,"DVGC30-003",answersFinalObj.toString());
+
+
             return true;
         }
         return super.onOptionsItemSelected(item);
