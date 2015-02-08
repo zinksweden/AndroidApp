@@ -35,10 +35,12 @@ public class StartScreen extends ActionBarActivity {
             @Override
             public void onClick(View arg0) {
 
-                EditText text = (EditText) findViewById(R.id.editText);
+                EditText courseCode = (EditText) findViewById(R.id.editText);
+                EditText anonymityCode = (EditText) findViewById(R.id.editText2);
 
                 Intent intent = new Intent(context, TentaOnline.class);
-                intent.putExtra("courseCode",text.getText().toString());
+                intent.putExtra("courseCode",courseCode.getText().toString());
+                intent.putExtra("anonymityCode",anonymityCode.getText().toString());
                 startActivity(intent);
 
             }

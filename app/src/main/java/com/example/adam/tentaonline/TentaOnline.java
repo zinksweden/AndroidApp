@@ -5,6 +5,8 @@ import android.os.Bundle;
 import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.CheckBox;
+import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.RadioButton;
@@ -24,9 +26,10 @@ import org.json.JSONObject;
 public class TentaOnline extends ActionBarActivity implements AsyncResponse{
     LinearLayout mainLayout;
 
-
+    JSONArray examArray;
     int number=0;
-    String courseCode;
+    int textBoxNumber=0;
+    String courseCode,anonymityCode;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -34,6 +37,7 @@ public class TentaOnline extends ActionBarActivity implements AsyncResponse{
         setContentView(R.layout.activity_tenta_online);
 
         courseCode = getIntent().getStringExtra("courseCode");
+        anonymityCode =getIntent().getStringExtra("anonymityCode");
 
         //Log.d("START","program has started");
         LinearLayout myTestLayout = (LinearLayout) findViewById(R.id.linearLayout1);
@@ -55,6 +59,8 @@ public class TentaOnline extends ActionBarActivity implements AsyncResponse{
         asyncGetExam.delegate = this;
         // Execute AndroidGet.java
         asyncGetExam.execute(courseCode);
+
+
 
         myTestLayout.addView(mainLayout);
         setContentView(myTestLayout);
@@ -78,15 +84,20 @@ public class TentaOnline extends ActionBarActivity implements AsyncResponse{
             addHeader(headerObject);
             //  String formatedJsonExamString=jarr.getString(0).substring(jarr.getString(0).indexOf("{"), jarr.getString(0).lastIndexOf("}") + 1);
             JSONObject examObject = new JSONObject(examContentArr.getString(0));
-
-            JSONArray examArray = examObject.getJSONArray("Exam");
+            //JSONArray examArray
+            examArray = examObject.getJSONArray("Exam");
 
             for(int i=0;i< examArray.length();i++){
                 JSONObject questionObject = examArray.getJSONObject(i);
                 if(questionObject.getString("Type").equals("radio")){
                     addRadioQuestion(questionObject);
                 }
+                if(questionObject.getString("Type").equals("text")){
+                    addTextboxQuestion(questionObject);
+                }
             }
+
+
         }catch (Throwable t){
             Log.d("Threw exception"," " + t);
         }
@@ -134,6 +145,30 @@ public class TentaOnline extends ActionBarActivity implements AsyncResponse{
         }catch (Throwable t){
             Log.d("Threw exception"," " + t);
         }
+    }
+
+    public void addTextboxQuestion(JSONObject questionObject){
+        try{
+            addText(questionObject.getString("Question"),25,false);
+            addTextbox();
+        }catch (Throwable t){
+            Log.d("Threw exception"," " + t);
+        }
+
+
+    }
+
+    public void addTextbox(){
+        EditText edit = new EditText(this);
+        final LinearLayout.LayoutParams lparams = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT,LinearLayout.LayoutParams.WRAP_CONTENT);
+        edit.setLayoutParams(lparams);
+        edit.setId(2000+textBoxNumber);
+        textBoxNumber++;
+        //edit.setBackgroundColor(0xffeeeeee);
+        edit.setMinimumWidth(100);
+        mainLayout.addView(edit);
+
+
     }
 
     /** Adds radio buttons with the answers */
@@ -186,7 +221,49 @@ public class TentaOnline extends ActionBarActivity implements AsyncResponse{
             JSONObject answersObj;
             JSONArray answersArr = new JSONArray();
             JSONObject answersFinalObj = new JSONObject();
-            for(int i=0;i<number;i++){
+            int radioNumber=0;
+            int textNumber=0;
+            try{
+
+
+             for(int i=0;i< examArray.length();i++){
+                JSONObject questionObject = examArray.getJSONObject(i);
+
+                if(questionObject.getString("Type").equals("radio")){
+                    RadioGroup radioGroup=(RadioGroup)findViewById(1000+radioNumber);
+                    RadioButton radioButton = (RadioButton) findViewById(radioGroup.getCheckedRadioButtonId());
+                    answersObj = new JSONObject();
+                    radioNumber++;
+                    try{
+                        answersObj.put("ID",i);
+                        answersObj.put("answer", "option" + radioGroup.indexOfChild(radioButton));
+                        answersArr.put(answersObj);
+
+                    }catch (JSONException e){
+                        Log.d("Threw exception"," " + e);
+                    }
+                }
+
+                if(questionObject.getString("Type").equals("text")){
+                    EditText edit = (EditText)findViewById(2000+textNumber);
+                    textNumber++;
+                    try{
+                        answersObj = new JSONObject();
+                        answersObj.put("ID",i);
+                        answersObj.put("answer", edit.getText());
+                        answersArr.put(answersObj);
+
+                    }catch (JSONException e){
+                        Log.d("Threw exception"," " + e);
+                    }
+                }
+            }
+            }catch (Throwable t){
+            Log.d("Threw exception"," " + t);
+            }
+
+            //examArray.length();
+            /*for(int i=0;i<number;i++){
                 RadioGroup radioGroup=(RadioGroup)findViewById(1000+i);
                 RadioButton radioButton = (RadioButton) findViewById(radioGroup.getCheckedRadioButtonId());
                 answersObj = new JSONObject();
@@ -199,9 +276,9 @@ public class TentaOnline extends ActionBarActivity implements AsyncResponse{
                     Log.d("Threw exception"," " + e);
                 }
 
-            }
+            }*/
             try{
-                answersFinalObj.put("Student","DVGC30-003");
+                answersFinalObj.put("Student",anonymityCode);
                 answersFinalObj.put("Answers",answersArr);
 
             }catch (JSONException e){
@@ -215,7 +292,7 @@ public class TentaOnline extends ActionBarActivity implements AsyncResponse{
 
            // {"Student":"kalle","Answers":[{"ID":0,"Answer":"option1"},{"ID":1,"Answer":"option2"}]}
 
-            asyncPostExam.execute(courseCode,"DVGC30-003",answersFinalObj.toString());
+            asyncPostExam.execute(courseCode,anonymityCode,answersFinalObj.toString());
 
 
             return true;
