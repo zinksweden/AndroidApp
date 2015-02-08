@@ -13,7 +13,6 @@ import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.util.Log;
 
-import java.lang.reflect.Array;
 import java.util.ArrayList;
 
 import org.json.JSONArray;
@@ -29,7 +28,9 @@ public class TentaOnline extends ActionBarActivity implements AsyncResponse{
     JSONArray examArray;
     int number=0;
     int textBoxNumber=0;
+    int checkboxLayoutNumber=0;
     String courseCode,anonymityCode;
+
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -91,6 +92,9 @@ public class TentaOnline extends ActionBarActivity implements AsyncResponse{
                 JSONObject questionObject = examArray.getJSONObject(i);
                 if(questionObject.getString("Type").equals("radio")){
                     addRadioQuestion(questionObject);
+                }
+                if(questionObject.getString("Type").equals("checkbox")){
+                    addCheckboxQuestion(questionObject);
                 }
                 if(questionObject.getString("Type").equals("text")){
                     addTextboxQuestion(questionObject);
@@ -158,6 +162,25 @@ public class TentaOnline extends ActionBarActivity implements AsyncResponse{
 
     }
 
+    public void addCheckboxQuestion(JSONObject questionObject){
+
+        try{
+            addText(questionObject.getString("Question"),25,false);
+            JSONArray optionsArray = questionObject.getJSONArray("Options");
+            ArrayList<String> options = new ArrayList<>();
+
+            for (int i=0;i<optionsArray.length();i++){
+                options.add(optionsArray.getString(i));
+            }
+            addCheckbox(options);
+        }catch (Throwable t){
+            Log.d("Threw exception"," " + t);
+        }
+
+    }
+
+
+
     public void addTextbox(){
         EditText edit = new EditText(this);
         final LinearLayout.LayoutParams lparams = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT,LinearLayout.LayoutParams.WRAP_CONTENT);
@@ -167,6 +190,26 @@ public class TentaOnline extends ActionBarActivity implements AsyncResponse{
         //edit.setBackgroundColor(0xffeeeeee);
         edit.setMinimumWidth(100);
         mainLayout.addView(edit);
+
+
+    }
+
+    public void addCheckbox(ArrayList<String> options){
+
+        LinearLayout checkboxLayout = new LinearLayout(this);
+        checkboxLayout.setOrientation(LinearLayout.VERTICAL);
+        checkboxLayout.setId(3000+checkboxLayoutNumber);
+
+        checkboxLayoutNumber++;
+
+        for(int i=0;i<options.size();i++){
+            CheckBox checkBox = new CheckBox(this);
+            checkBox.setText(options.get(i));
+            checkBox.setId(0 + i);
+            checkboxLayout.addView(checkBox);
+        }
+
+        mainLayout.addView(checkboxLayout);
 
 
     }
@@ -223,6 +266,7 @@ public class TentaOnline extends ActionBarActivity implements AsyncResponse{
             JSONObject answersFinalObj = new JSONObject();
             int radioNumber=0;
             int textNumber=0;
+            int checkboxNumber=0;
             try{
 
 
@@ -237,6 +281,28 @@ public class TentaOnline extends ActionBarActivity implements AsyncResponse{
                     try{
                         answersObj.put("ID",i);
                         answersObj.put("answer", "option" + radioGroup.indexOfChild(radioButton));
+                        answersArr.put(answersObj);
+
+                    }catch (JSONException e){
+                        Log.d("Threw exception"," " + e);
+                    }
+                }
+
+                if(questionObject.getString("Type").equals("checkbox")){
+                    LinearLayout checkboxLayout=(LinearLayout)findViewById(3000+checkboxNumber);
+                    //RadioButton radioButton = (RadioButton) findViewById(radioGroup.getCheckedRadioButtonId());
+                    answersObj = new JSONObject();
+                    checkboxNumber++;
+                    ArrayList<String> answerOptionArr = new ArrayList<>();
+                    for(int j=0;j<checkboxLayout.getChildCount();j++){
+                        CheckBox checkboxAtPosition=(CheckBox)checkboxLayout.getChildAt(j);
+                        if(checkboxAtPosition.isChecked()){
+                            answerOptionArr.add("option" + checkboxAtPosition.getId());
+                        }
+                    }
+                    try{
+                        answersObj.put("ID",i);
+                        answersObj.put("answer",answerOptionArr);
                         answersArr.put(answersObj);
 
                     }catch (JSONException e){
