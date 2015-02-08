@@ -280,7 +280,7 @@ public class TentaOnline extends ActionBarActivity implements AsyncResponse{
                     radioNumber++;
                     try{
                         answersObj.put("ID",i);
-                        answersObj.put("answer", "option" + radioGroup.indexOfChild(radioButton));
+                        answersObj.put("Answer", "option" + radioGroup.indexOfChild(radioButton));
                         answersArr.put(answersObj);
 
                     }catch (JSONException e){
@@ -302,7 +302,7 @@ public class TentaOnline extends ActionBarActivity implements AsyncResponse{
                     }
                     try{
                         answersObj.put("ID",i);
-                        answersObj.put("answer",answerOptionArr);
+                        answersObj.put("Answer",answerOptionArr);
                         answersArr.put(answersObj);
 
                     }catch (JSONException e){
@@ -316,7 +316,7 @@ public class TentaOnline extends ActionBarActivity implements AsyncResponse{
                     try{
                         answersObj = new JSONObject();
                         answersObj.put("ID",i);
-                        answersObj.put("answer", edit.getText());
+                        answersObj.put("Answer", edit.getText());
                         answersArr.put(answersObj);
 
                     }catch (JSONException e){
