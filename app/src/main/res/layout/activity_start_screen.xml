@@ -9,9 +9,10 @@
         android:layout_height="wrap_content"
         android:text="Load Exam"
         android:id="@+id/button"
-        android:layout_marginBottom="86dp"
-        android:layout_alignParentBottom="true"
-        android:layout_centerHorizontal="true" />
+        android:layout_marginTop="50dp"
+        android:layout_centerHorizontal="true"
+        android:layout_below="@+id/editText2"
+        />
 
     <EditText
         android:layout_width="wrap_content"
@@ -22,7 +23,7 @@
         android:textSize="40dp"
         android:layout_below="@+id/textView"
         android:layout_centerHorizontal="true"
-        android:layout_marginTop="36dp" />
+        android:layout_marginTop="10dp" />
 
 
     <EditText
@@ -34,17 +35,17 @@
         android:textSize="40dp"
         android:layout_below="@+id/textView2"
         android:layout_centerHorizontal="true"
-        android:layout_marginTop="39dp" />
+        android:layout_marginTop="10dp" />
 
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Enter course code"
+        android:text="Application code"
         android:id="@+id/textView"
         android:textSize="30dp"
         android:layout_alignParentTop="true"
         android:layout_centerHorizontal="true"
-        android:layout_marginTop="64dp" />
+        android:layout_marginTop="40dp" />
 
     <TextView
         android:layout_width="wrap_content"
@@ -52,8 +53,10 @@
         android:text="Anonymity code"
         android:id="@+id/textView2"
         android:textSize="30dp"
-        android:layout_centerVertical="true"
-        android:layout_centerHorizontal="true" />
+        android:layout_centerHorizontal="true"
+        android:layout_below="@+id/editText"
+        android:layout_marginTop="35dp"
+        />
 
 
 

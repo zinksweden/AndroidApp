@@ -52,7 +52,7 @@ public class AndroidGet extends AsyncTask<String,String,String> {
             HttpClient httpclient = new DefaultHttpClient(params);
 
             //Why to use 10.0.2.2
-            HttpPost httppost = new HttpPost("http://10.0.2.2/android/get.php?course_code=" + URLEncoder.encode(param[0], "UTF-8"));  //ändra foldername
+            HttpPost httppost = new HttpPost("http://83.183.12.45/android/get.php?course_code=" + URLEncoder.encode(param[0], "UTF-8"));  //ändra foldername
             httppost.setEntity(new UrlEncodedFormEntity(nameValuePairs));
             HttpResponse response = httpclient.execute(httppost);
             HttpEntity entity = response.getEntity();
