@@ -234,7 +234,6 @@ public class TentaOnline extends ActionBarActivity implements AsyncResponse{
         //edit.setBackgroundColor(0xffeeeeee);
         edit.setMinimumWidth(100);
         pageLayout.addView(edit);
-        //allPagesLayout.addView(pageLayout);
 
 
     }
@@ -255,7 +254,6 @@ public class TentaOnline extends ActionBarActivity implements AsyncResponse{
         }
 
         pageLayout.addView(checkboxLayout);
-        //allPagesLayout.addView(pageLayout);
 
 
     }
@@ -273,8 +271,7 @@ public class TentaOnline extends ActionBarActivity implements AsyncResponse{
         }
         number++;
         pageLayout.addView(radioGroup);
-        //allPagesLayout.addView(pageLayout);
-        //mainLayout.addView(pageLayout);
+
 
     }
 
@@ -288,7 +285,6 @@ public class TentaOnline extends ActionBarActivity implements AsyncResponse{
         questionView.setText(question);
         questionView.setTextSize(textSize);
         pageLayout.addView(questionView);
-       // allPagesLayout.addView(pageLayout);
     }
 
 
@@ -342,19 +338,19 @@ public class TentaOnline extends ActionBarActivity implements AsyncResponse{
 
                 if(questionObject.getString("Type").equals("checkbox")){
                     LinearLayout checkboxLayout=(LinearLayout) pagesLayout.get(i).findViewById(3000+checkboxNumber);
-                    //RadioButton radioButton = (RadioButton) findViewById(radioGroup.getCheckedRadioButtonId());
                     answersObj = new JSONObject();
+                    JSONObject answerObj = new JSONObject();
                     checkboxNumber++;
-                    ArrayList<String> answerOptionArr = new ArrayList<>();
+                    JSONArray ansOptArr = new JSONArray();
                     for(int j=0;j<checkboxLayout.getChildCount();j++){
                         CheckBox checkboxAtPosition=(CheckBox)checkboxLayout.getChildAt(j);
                         if(checkboxAtPosition.isChecked()){
-                            answerOptionArr.add("option" + checkboxAtPosition.getId());
+                            ansOptArr.put("option" + checkboxAtPosition.getId());
                         }
                     }
                     try{
                         answersObj.put("ID",i);
-                        answersObj.put("Answer",answerOptionArr);
+                        answersObj.put("Answer",ansOptArr);
                         answersArr.put(answersObj);
 
                     }catch (JSONException e){
@@ -380,21 +376,6 @@ public class TentaOnline extends ActionBarActivity implements AsyncResponse{
             Log.d("Threw exception"," " + t);
             }
 
-            //examArray.length();
-            /*for(int i=0;i<number;i++){
-                RadioGroup radioGroup=(RadioGroup)findViewById(1000+i);
-                RadioButton radioButton = (RadioButton) findViewById(radioGroup.getCheckedRadioButtonId());
-                answersObj = new JSONObject();
-                try{
-                    answersObj.put("ID",i);
-                    answersObj.put("answer", "option" + radioGroup.indexOfChild(radioButton));
-                    answersArr.put(answersObj);
-
-                }catch (JSONException e){
-                    Log.d("Threw exception"," " + e);
-                }
-
-            }*/
             try{
                 answersFinalObj.put("Student",anonymityCode);
                 answersFinalObj.put("Answers",answersArr);
@@ -407,8 +388,6 @@ public class TentaOnline extends ActionBarActivity implements AsyncResponse{
 
             AndroidPost asyncPostExam = new AndroidPost();
             asyncPostExam.delegate = this;
-
-           // {"Student":"kalle","Answers":[{"ID":0,"Answer":"option1"},{"ID":1,"Answer":"option2"}]}
 
             asyncPostExam.execute(courseCode,anonymityCode,answersFinalObj.toString());
 
