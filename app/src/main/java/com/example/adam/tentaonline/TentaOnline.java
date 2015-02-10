@@ -13,11 +13,14 @@ import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.HorizontalScrollView;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.util.Log;
+
+import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
 
@@ -198,7 +201,12 @@ public class TentaOnline extends ActionBarActivity implements AsyncResponse{
             addText(headerObject.getString("OtherInfo"),20,true,pageLayout);
             addText("______________________________",20,true,pageLayout);
 
+            ImageView imag = new ImageView(this);
+                Picasso.with(this)
+                    .load("https://cms-assets.tutsplus.com/uploads/users/21/posts/19431/featured_image/CodeFeature.jpg")
+                    .into(imag);
 
+            pageLayout.addView(imag);
 
 
         }catch (Throwable t){
@@ -227,12 +235,13 @@ public class TentaOnline extends ActionBarActivity implements AsyncResponse{
 
     public void addTextbox(LinearLayout pageLayout){
         EditText edit = new EditText(this);
-        final LinearLayout.LayoutParams lparams = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT,LinearLayout.LayoutParams.WRAP_CONTENT);
+        final LinearLayout.LayoutParams lparams = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT,LinearLayout.LayoutParams.WRAP_CONTENT);
         edit.setLayoutParams(lparams);
         edit.setId(2000 + textBoxNumber);
         textBoxNumber++;
         //edit.setBackgroundColor(0xffeeeeee);
         edit.setMinimumWidth(100);
+        edit.setBackgroundResource(R.drawable.back_border);
         pageLayout.addView(edit);
 
 

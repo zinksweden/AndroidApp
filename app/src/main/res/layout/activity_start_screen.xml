@@ -58,6 +58,17 @@
         android:layout_marginTop="35dp"
         />
 
+    <com.example.adam.tentaonline.SimpleDrawView
+        android:id="@+id/simpleDrawingView1"
+        android:layout_height="100dp"
+        android:layout_width="match_parent"
+        android:layout_below="@+id/button"
+        android:layout_marginTop="20dp"
+        android:background="@drawable/back_border"
+        >
+
+
+    </com.example.adam.tentaonline.SimpleDrawView>
 
 
 </RelativeLayout>
