@@ -15,6 +15,7 @@ import android.widget.EditText;
 import android.widget.HorizontalScrollView;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
@@ -41,6 +42,8 @@ public class TentaOnline extends ActionBarActivity implements AsyncResponse{
     String courseCode,anonymityCode;
     LinearLayout myTestLayout;
     ArrayList<LinearLayout> pagesLayout = new ArrayList<>();
+    int currentQuestion=-1;
+    LinearLayout pageLayoutHeader;
 
 
     @Override
@@ -102,9 +105,51 @@ public class TentaOnline extends ActionBarActivity implements AsyncResponse{
             //JSONArray examArray
             examArray = examObject.getJSONArray("Exam");
 
-            addHeaderButton(headerObject);
+
+///
+            final RelativeLayout testButtonsLayout = (RelativeLayout) findViewById(R.id.linearLayout3);
+
+            final Button nextButton = new Button(this);
+            nextButton.setText("Next");
+            nextButton.setBackgroundResource(R.drawable.button_shape);
+
+            final Button prevButton = new Button(this);
+            prevButton.setText("Prev");
+            prevButton.setBackgroundResource(R.drawable.button_shape);
+
+            nextButton.setOnClickListener(new View.OnClickListener() {
+                public void onClick(View v) {
+                    myTestLayout.removeAllViews();
+                    myTestLayout.addView(pagesLayout.get((currentQuestion+1)));
+                    currentQuestion++;
+                    addNextPrevButton(testButtonsLayout,nextButton,prevButton);
+                }
+            });
+
+            prevButton.setOnClickListener(new View.OnClickListener() {
+                public void onClick(View v) {
+                    myTestLayout.removeAllViews();
+                    if(currentQuestion==0){
+                        myTestLayout.addView(pageLayoutHeader);
+                    }
+                    else{
+                        myTestLayout.addView(pagesLayout.get((currentQuestion-1)));
+                    }
+                    currentQuestion--;
+                    addNextPrevButton(testButtonsLayout,nextButton,prevButton);
+                }
+            });
+
+
+
+            addHeaderButton(headerObject,testButtonsLayout,nextButton,prevButton);
+///
 
             for(int i=0;i< examArray.length();i++){
+                //
+
+                //
+
                 JSONObject questionObject = examArray.getJSONObject(i);
 
                 LinearLayout pageLayout = new LinearLayout(this);
@@ -127,12 +172,16 @@ public class TentaOnline extends ActionBarActivity implements AsyncResponse{
                     public void onClick(View v) {
                         myTestLayout.removeAllViews();
                         myTestLayout.addView(pagesLayout.get((questionButton.getId() - 6000)));
+                        currentQuestion=(questionButton.getId() - 6000);
+                        addNextPrevButton(testButtonsLayout,nextButton,prevButton);
                     }
                 });
 
 
                 LinearLayout questionButtonLayout = (LinearLayout) findViewById(R.id.linearLayout2);
                 questionButtonLayout.addView(questionButton);
+
+
 
                 addText( ("Question " + (i+1) ) ,30,true,pageLayout);
                 addText(questionObject.getString("Question"),25,false,pageLayout);
@@ -149,6 +198,7 @@ public class TentaOnline extends ActionBarActivity implements AsyncResponse{
                 pagesLayout.add(pageLayout);
             }
 
+            addNextPrevButton(testButtonsLayout,nextButton,prevButton);
 
         }catch (Throwable t){
             Log.d("Threw exception"," " + t);
@@ -157,9 +207,31 @@ public class TentaOnline extends ActionBarActivity implements AsyncResponse{
 
     }
 
-    public void addHeaderButton(JSONObject headerObject){
+    public void addNextPrevButton(RelativeLayout buttonLayout, Button nextButton, Button prevButton){
+        buttonLayout.removeAllViews();
+        addPrevButton(buttonLayout,prevButton);
+        addNextButton(buttonLayout,nextButton);
+    }
 
-        final LinearLayout pageLayoutHeader = new LinearLayout(this);
+    public void addNextButton(RelativeLayout buttonLayout, Button nextButton){
+        if(currentQuestion<pagesLayout.size()-1){
+            RelativeLayout.LayoutParams params = new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.WRAP_CONTENT, RelativeLayout.LayoutParams.WRAP_CONTENT);
+            params.addRule(RelativeLayout.ALIGN_PARENT_RIGHT, RelativeLayout.TRUE);
+            buttonLayout.addView(nextButton,params);
+        }
+    }
+
+    public void addPrevButton(RelativeLayout buttonLayout, Button prevButton){
+        if(currentQuestion>=0){
+            RelativeLayout.LayoutParams params = new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.WRAP_CONTENT, RelativeLayout.LayoutParams.WRAP_CONTENT);
+            params.addRule(RelativeLayout.ALIGN_PARENT_LEFT, RelativeLayout.TRUE);
+            buttonLayout.addView(prevButton,params);
+        }
+    }
+
+    public void addHeaderButton(JSONObject headerObject,final RelativeLayout testButtonsLayout,final Button nextButton,final Button prevButton){
+
+        pageLayoutHeader = new LinearLayout(this);
         LinearLayout.LayoutParams LLParamsHeader = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT,LinearLayout.LayoutParams.WRAP_CONTENT);
         pageLayoutHeader.setLayoutParams(LLParamsHeader);
         pageLayoutHeader.setOrientation(LinearLayout.VERTICAL);
@@ -171,7 +243,7 @@ public class TentaOnline extends ActionBarActivity implements AsyncResponse{
 
 
         Button headerButton = new Button(this);
-        headerButton.setText("Heaasfdder");
+        headerButton.setText("Info");
         //headerButton.setTextColor(0xFFFFF);
         headerButton.setBackgroundResource(R.drawable.button_shape);
         //headerButton.setBackgroundColor(Color.argb(255, 255, 0, 0));
@@ -183,6 +255,8 @@ public class TentaOnline extends ActionBarActivity implements AsyncResponse{
             public void onClick(View v) {
                 myTestLayout.removeAllViews();
                 myTestLayout.addView(pageLayoutHeader);
+                currentQuestion=-1;
+                addNextPrevButton(testButtonsLayout,nextButton,prevButton);
             }
         });
 
