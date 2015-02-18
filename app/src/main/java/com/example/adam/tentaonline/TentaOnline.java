@@ -1,18 +1,14 @@
 package com.example.adam.tentaonline;
 
-import android.graphics.Color;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
-import android.text.method.ScrollingMovementMethod;
 import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.inputmethod.EditorInfo;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.EditText;
-import android.widget.HorizontalScrollView;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
@@ -30,9 +26,8 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 
-
-
 public class TentaOnline extends ActionBarActivity implements AsyncResponse{
+
     LinearLayout mainLayout;
 
     JSONArray examArray;
@@ -54,7 +49,6 @@ public class TentaOnline extends ActionBarActivity implements AsyncResponse{
         courseCode = getIntent().getStringExtra("courseCode");
         anonymityCode =getIntent().getStringExtra("anonymityCode");
 
-        //Log.d("START","program has started");
         myTestLayout = (LinearLayout) findViewById(R.id.linearLayout1);
 
         LinearLayout.LayoutParams LLParams = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT,LinearLayout.LayoutParams.WRAP_CONTENT);
@@ -65,48 +59,30 @@ public class TentaOnline extends ActionBarActivity implements AsyncResponse{
         mainLayout.setOrientation(LinearLayout.VERTICAL);
         mainLayout.setBackgroundColor(0xFFFFF);
 
-        //String testString = "{\"Exam\":[{\"Type\":\"radio\",\"Question\":\"What is 5*5?\",\"Options\":[\"32\",\"45\",\"25\"]},{\"Type\":\"radio\",\"Question\":\"What was Albert Einstein's favorite color?\",\"Options\":[\"Blue\",\"Red\"]}]}";
-        //String testString ="{\\\"Exam\\\":[{\\\"Type\\\":\\\"radio\\\",\\\"Question\\\":\\\"Fraga1\\\",\\\"Options\\\":[\\\"Answer1\\\",\\\"Answer2\\\"]}]}";
-        //createQuestions(testString);
-
         AndroidGet asyncGetExam = new AndroidGet();
         // Sets delegate variable in AndroidGet.java to this
         asyncGetExam.delegate = this;
         // Execute AndroidGet.java
         asyncGetExam.execute(courseCode);
 
-
-      /* LinearLayout currentPageLayout=(LinearLayout)findViewById(5001+0);
-        myTestLayout.addView(currentPageLayout);
-
-        //myTestLayout.addView(mainLayout);
-        setContentView(myTestLayout);*/
     }
 
     /** Gets called when the AndroidGet.java finish executing*/
     public void processFinish(String output){
 
         createQuestions(output);
-
         //this you will received result fired from async class of onPostExecute(result) method.
     }
 
     /** Checks the questionType and calls the corresponding functions */
     public void createQuestions(final String TjsonExamString){
-
-
         try{
 
             JSONArray examContentArr = new JSONArray(TjsonExamString);
             JSONObject headerObject = new JSONObject(examContentArr.getString(1));
-            //addHeader(headerObject,pageLayout);
-            //  String formatedJsonExamString=jarr.getString(0).substring(jarr.getString(0).indexOf("{"), jarr.getString(0).lastIndexOf("}") + 1);
             JSONObject examObject = new JSONObject(examContentArr.getString(0));
-            //JSONArray examArray
             examArray = examObject.getJSONArray("Exam");
 
-
-///
             final RelativeLayout testButtonsLayout = (RelativeLayout) findViewById(R.id.linearLayout3);
 
             final Button nextButton = new Button(this);
@@ -120,9 +96,9 @@ public class TentaOnline extends ActionBarActivity implements AsyncResponse{
             nextButton.setOnClickListener(new View.OnClickListener() {
                 public void onClick(View v) {
                     myTestLayout.removeAllViews();
-                    myTestLayout.addView(pagesLayout.get((currentQuestion+1)));
+                    myTestLayout.addView(pagesLayout.get((currentQuestion + 1)));
                     currentQuestion++;
-                    addNextPrevButton(testButtonsLayout,nextButton,prevButton);
+                    addNextPrevButton(testButtonsLayout, nextButton, prevButton);
                 }
             });
 
@@ -140,15 +116,9 @@ public class TentaOnline extends ActionBarActivity implements AsyncResponse{
                 }
             });
 
-
-
             addHeaderButton(headerObject,testButtonsLayout,nextButton,prevButton);
-///
 
             for(int i=0;i< examArray.length();i++){
-                //
-
-                //
 
                 JSONObject questionObject = examArray.getJSONObject(i);
 
@@ -158,15 +128,11 @@ public class TentaOnline extends ActionBarActivity implements AsyncResponse{
                 pageLayout.setOrientation(LinearLayout.VERTICAL);
                 pageLayout.setBackgroundColor(0xFFFFF);
                 pageLayout.setId(5001 + i);
-                //Log.d("SKapa","its skapad");
 
                 final Button questionButton = new Button(this);
                 questionButton.setId(6000 + i);
                 questionButton.setText("Question " + (i + 1));
-                //questionButton.setTextColor(0xFFFFF);
                 questionButton.setBackgroundResource(R.drawable.button_shape);
-               // questionButton.setBackgroundColor(0xFFFFF);
-                //Log.d("knapp","knapp skapad nummer " + i);
 
                 questionButton.setOnClickListener(new View.OnClickListener() {
                     public void onClick(View v) {
@@ -177,11 +143,8 @@ public class TentaOnline extends ActionBarActivity implements AsyncResponse{
                     }
                 });
 
-
                 LinearLayout questionButtonLayout = (LinearLayout) findViewById(R.id.linearLayout2);
                 questionButtonLayout.addView(questionButton);
-
-
 
                 addText( ("Question " + (i+1) ) ,30,true,pageLayout);
                 addText(questionObject.getString("Question"),25,false,pageLayout);
@@ -203,16 +166,16 @@ public class TentaOnline extends ActionBarActivity implements AsyncResponse{
         }catch (Throwable t){
             Log.d("Threw exception"," " + t);
         }
-
-
     }
 
+    /* Removes next/prev buttons and calls functions to add them */
     public void addNextPrevButton(RelativeLayout buttonLayout, Button nextButton, Button prevButton){
         buttonLayout.removeAllViews();
         addPrevButton(buttonLayout,prevButton);
         addNextButton(buttonLayout,nextButton);
     }
 
+    /* Adds the next button if we are not on the last page */
     public void addNextButton(RelativeLayout buttonLayout, Button nextButton){
         if(currentQuestion<pagesLayout.size()-1){
             RelativeLayout.LayoutParams params = new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.WRAP_CONTENT, RelativeLayout.LayoutParams.WRAP_CONTENT);
@@ -221,6 +184,7 @@ public class TentaOnline extends ActionBarActivity implements AsyncResponse{
         }
     }
 
+    /* Adds the prev button if we are not on the first page */
     public void addPrevButton(RelativeLayout buttonLayout, Button prevButton){
         if(currentQuestion>=0){
             RelativeLayout.LayoutParams params = new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.WRAP_CONTENT, RelativeLayout.LayoutParams.WRAP_CONTENT);
@@ -229,6 +193,7 @@ public class TentaOnline extends ActionBarActivity implements AsyncResponse{
         }
     }
 
+    /* Adds the header button to the bottom */
     public void addHeaderButton(JSONObject headerObject,final RelativeLayout testButtonsLayout,final Button nextButton,final Button prevButton){
 
         pageLayoutHeader = new LinearLayout(this);
@@ -241,12 +206,9 @@ public class TentaOnline extends ActionBarActivity implements AsyncResponse{
         addHeader(headerObject,pageLayoutHeader);
         myTestLayout.addView(pageLayoutHeader);
 
-
         Button headerButton = new Button(this);
         headerButton.setText("Info");
-        //headerButton.setTextColor(0xFFFFF);
         headerButton.setBackgroundResource(R.drawable.button_shape);
-        //headerButton.setBackgroundColor(Color.argb(255, 255, 0, 0));
 
         final LinearLayout headerButtonLayout = (LinearLayout) findViewById(R.id.linearLayout2);
         headerButtonLayout.addView(headerButton);
@@ -259,15 +221,12 @@ public class TentaOnline extends ActionBarActivity implements AsyncResponse{
                 addNextPrevButton(testButtonsLayout,nextButton,prevButton);
             }
         });
-
     }
 
-
+    /* Adds the header/info page to the exam */
     public void addHeader(JSONObject headerObject,LinearLayout pageLayout){
-            //headerObject.getString("");
 
         try{
-
             addText(headerObject.getString("Title"),50,true,pageLayout);
             addText("Course Director: " + headerObject.getString("Director"),20,true,pageLayout);
             addText("Help information: " + headerObject.getString("HelpInfo"),20,true,pageLayout);
@@ -275,22 +234,19 @@ public class TentaOnline extends ActionBarActivity implements AsyncResponse{
             addText(headerObject.getString("OtherInfo"),20,true,pageLayout);
             addText("______________________________",20,true,pageLayout);
 
+            // Adds image to screen
             ImageView imag = new ImageView(this);
                 Picasso.with(this)
                     .load("https://cms-assets.tutsplus.com/uploads/users/21/posts/19431/featured_image/CodeFeature.jpg")
                     .into(imag);
-
             pageLayout.addView(imag);
-
 
         }catch (Throwable t){
             Log.d("Threw exception"," " + t);
         }
-
-
-
     }
 
+    /* Returns the options as an ArrayList */
     public ArrayList<String> getOptionsArray(JSONObject questionObject){
         try {
             JSONArray optionsArray = questionObject.getJSONArray("Options");
@@ -304,23 +260,21 @@ public class TentaOnline extends ActionBarActivity implements AsyncResponse{
             Log.d("Threw exception"," " + t);
         }
         return null;
-
     }
 
+    /* Adds a textBox to the exam */
     public void addTextbox(LinearLayout pageLayout){
         EditText edit = new EditText(this);
         final LinearLayout.LayoutParams lparams = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT,LinearLayout.LayoutParams.WRAP_CONTENT);
         edit.setLayoutParams(lparams);
         edit.setId(2000 + textBoxNumber);
         textBoxNumber++;
-        //edit.setBackgroundColor(0xffeeeeee);
         edit.setMinimumWidth(100);
         edit.setBackgroundResource(R.drawable.back_border);
         pageLayout.addView(edit);
-
-
     }
 
+    /* Adds checkboxes with the answers */
     public void addCheckbox(ArrayList<String> options, LinearLayout pageLayout){
 
         LinearLayout checkboxLayout = new LinearLayout(this);
@@ -335,10 +289,7 @@ public class TentaOnline extends ActionBarActivity implements AsyncResponse{
             checkBox.setId(0 + i);
             checkboxLayout.addView(checkBox);
         }
-
         pageLayout.addView(checkboxLayout);
-
-
     }
 
     /** Adds radio buttons with the answers */
@@ -354,8 +305,6 @@ public class TentaOnline extends ActionBarActivity implements AsyncResponse{
         }
         number++;
         pageLayout.addView(radioGroup);
-
-
     }
 
     /** Adds question to the mainLayout view */
@@ -397,10 +346,8 @@ public class TentaOnline extends ActionBarActivity implements AsyncResponse{
             int checkboxNumber=0;
             try{
 
-
              for(int i=0;i< examArray.length();i++){
                 JSONObject questionObject = examArray.getJSONObject(i);
-                 //pagesLayout.get(i)
 
                 if(questionObject.getString("Type").equals("radio")){
                     RadioGroup radioGroup=(RadioGroup) pagesLayout.get(i).findViewById(1000+radioNumber);
@@ -473,7 +420,6 @@ public class TentaOnline extends ActionBarActivity implements AsyncResponse{
             asyncPostExam.delegate = this;
 
             asyncPostExam.execute(courseCode,anonymityCode,answersFinalObj.toString());
-
 
             return true;
         }
