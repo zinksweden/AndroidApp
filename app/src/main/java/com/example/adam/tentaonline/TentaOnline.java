@@ -70,60 +70,88 @@ public class TentaOnline extends ActionBarActivity implements AsyncResponse{
     /** Gets called when the AndroidGet.java finish executing*/
     public void processFinish(String output){
 
-        createQuestions(output);
+        createExam(output);
         //this you will received result fired from async class of onPostExecute(result) method.
     }
 
-    /** Checks the questionType and calls the corresponding functions */
-    public void createQuestions(final String TjsonExamString){
+    /** Create the exam components  */
+    public void createExam(final String jsonExamString){
         try{
 
-            JSONArray examContentArr = new JSONArray(TjsonExamString);
+            JSONArray examContentArr = new JSONArray(jsonExamString);
             JSONObject headerObject = new JSONObject(examContentArr.getString(1));
             JSONObject examObject = new JSONObject(examContentArr.getString(0));
             examArray = examObject.getJSONArray("Exam");
 
-            final RelativeLayout testButtonsLayout = (RelativeLayout) findViewById(R.id.linearLayout3);
+            final RelativeLayout navButtonLayout = (RelativeLayout) findViewById(R.id.linearLayout3);
+            final Button nextButton = createNextButton();
+            final Button prevButton = createPrevButton();
 
-            final Button nextButton = new Button(this);
-            nextButton.setText("Next");
-            nextButton.setBackgroundResource(R.drawable.button_shape);
+            nextButtonOnClick(navButtonLayout,nextButton,prevButton);
+            prevButtonOnClick(navButtonLayout,nextButton,prevButton);
 
-            final Button prevButton = new Button(this);
-            prevButton.setText("Prev");
-            prevButton.setBackgroundResource(R.drawable.button_shape);
+            addHeaderButton(headerObject,navButtonLayout,nextButton,prevButton);
+            createQuestionPages(navButtonLayout,nextButton,prevButton);
+            addNextPrevButton(navButtonLayout,nextButton,prevButton);
 
-            nextButton.setOnClickListener(new View.OnClickListener() {
-                public void onClick(View v) {
-                    myTestLayout.removeAllViews();
-                    myTestLayout.addView(pagesLayout.get((currentQuestion + 1)));
-                    currentQuestion++;
-                    addNextPrevButton(testButtonsLayout, nextButton, prevButton);
+        }catch (Throwable t){
+            Log.d("Threw exception"," " + t);
+        }
+    }
+
+    private Button createNextButton(){
+        final Button nextButton = new Button(this);
+        nextButton.setText("Next");
+        nextButton.setBackgroundResource(R.drawable.button_shape);
+
+        return nextButton;
+    }
+    private void nextButtonOnClick(final RelativeLayout navButtonLayout, final Button nextButton, final Button prevButton)
+    {
+        nextButton.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View v) {
+                myTestLayout.removeAllViews();
+                myTestLayout.addView(pagesLayout.get((currentQuestion + 1)));
+                currentQuestion++;
+                addNextPrevButton(navButtonLayout, nextButton, prevButton);
+            }
+        });
+    }
+
+    private Button createPrevButton(){
+        final Button prevButton = new Button(this);
+        prevButton.setText("Prev");
+        prevButton.setBackgroundResource(R.drawable.button_shape);
+
+        return prevButton;
+    }
+    private void prevButtonOnClick(final RelativeLayout navButtonLayout, final Button nextButton, final Button prevButton)
+    {
+        prevButton.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View v) {
+                myTestLayout.removeAllViews();
+                if(currentQuestion==0){
+                    myTestLayout.addView(pageLayoutHeader);
                 }
-            });
-
-            prevButton.setOnClickListener(new View.OnClickListener() {
-                public void onClick(View v) {
-                    myTestLayout.removeAllViews();
-                    if(currentQuestion==0){
-                        myTestLayout.addView(pageLayoutHeader);
-                    }
-                    else{
-                        myTestLayout.addView(pagesLayout.get((currentQuestion-1)));
-                    }
-                    currentQuestion--;
-                    addNextPrevButton(testButtonsLayout,nextButton,prevButton);
+                else{
+                    myTestLayout.addView(pagesLayout.get((currentQuestion-1)));
                 }
-            });
+                currentQuestion--;
+                addNextPrevButton(navButtonLayout,nextButton,prevButton);
+            }
+        });
+    }
 
-            addHeaderButton(headerObject,testButtonsLayout,nextButton,prevButton);
 
-            for(int i=0;i< examArray.length();i++){
+    private void createQuestionPages(final RelativeLayout navButtonLayout, final Button nextButton, final Button prevButton){
+        try {
+            LinearLayout questionButtonLayout = (LinearLayout) findViewById(R.id.linearLayout2);
+            for (int i = 0; i < examArray.length(); i++) {
 
                 JSONObject questionObject = examArray.getJSONObject(i);
 
                 LinearLayout pageLayout = new LinearLayout(this);
-                LinearLayout.LayoutParams LLParams = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT,LinearLayout.LayoutParams.WRAP_CONTENT);
+                LinearLayout.LayoutParams LLParams = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
                 pageLayout.setLayoutParams(LLParams);
                 pageLayout.setOrientation(LinearLayout.VERTICAL);
                 pageLayout.setBackgroundColor(0xFFFFF);
@@ -138,32 +166,38 @@ public class TentaOnline extends ActionBarActivity implements AsyncResponse{
                     public void onClick(View v) {
                         myTestLayout.removeAllViews();
                         myTestLayout.addView(pagesLayout.get((questionButton.getId() - 6000)));
-                        currentQuestion=(questionButton.getId() - 6000);
-                        addNextPrevButton(testButtonsLayout,nextButton,prevButton);
+                        currentQuestion = (questionButton.getId() - 6000);
+                        addNextPrevButton(navButtonLayout, nextButton, prevButton);
                     }
                 });
 
-                LinearLayout questionButtonLayout = (LinearLayout) findViewById(R.id.linearLayout2);
                 questionButtonLayout.addView(questionButton);
-
-                addText( ("Question " + (i+1) ) ,30,true,pageLayout);
-                addText(questionObject.getString("Question"),25,false,pageLayout);
-
-                if(questionObject.getString("Type").equals("radio")){
-                    addRadio(getOptionsArray(questionObject),pageLayout);
-                }
-                if(questionObject.getString("Type").equals("checkbox")){
-                    addCheckbox(getOptionsArray(questionObject),pageLayout);
-                }
-                if(questionObject.getString("Type").equals("text")){
-                    addTextbox(pageLayout);
-                }
+                createQuestion(pageLayout,i,questionObject);
                 pagesLayout.add(pageLayout);
             }
+        }
+        catch (Throwable t){
+            Log.d("Threw exception"," " + t);
+        }
+    }
 
-            addNextPrevButton(testButtonsLayout,nextButton,prevButton);
+    private void createQuestion(LinearLayout pageLayout, int i, JSONObject questionObject){
 
-        }catch (Throwable t){
+        try{
+            addText(("Question " + (i + 1)), 30, true, pageLayout);
+            addText(questionObject.getString("Question"), 25, false, pageLayout);
+
+            if (questionObject.getString("Type").equals("radio")) {
+                addRadio(getOptionsArray(questionObject), pageLayout);
+            }
+            if (questionObject.getString("Type").equals("checkbox")) {
+                addCheckbox(getOptionsArray(questionObject), pageLayout);
+            }
+            if (questionObject.getString("Type").equals("text")) {
+                addTextbox(pageLayout);
+            }
+        }
+        catch (Throwable t){
             Log.d("Threw exception"," " + t);
         }
     }
@@ -248,18 +282,19 @@ public class TentaOnline extends ActionBarActivity implements AsyncResponse{
 
     /* Returns the options as an ArrayList */
     public ArrayList<String> getOptionsArray(JSONObject questionObject){
+
+        ArrayList<String> options = null;
         try {
             JSONArray optionsArray = questionObject.getJSONArray("Options");
-            ArrayList<String> options = new ArrayList<>();
-
+            options = new ArrayList<>();
             for (int i = 0; i < optionsArray.length(); i++) {
                 options.add(optionsArray.getString(i));
             }
-            return options;
-        }catch (Throwable t){
+        }
+        catch (Throwable t){
             Log.d("Threw exception"," " + t);
         }
-        return null;
+        return options;
     }
 
     /* Adds a textBox to the exam */
@@ -318,6 +353,7 @@ public class TentaOnline extends ActionBarActivity implements AsyncResponse{
         questionView.setTextSize(textSize);
         pageLayout.addView(questionView);
     }
+
 
 
     /** Creates the dropdown menu with post exam button etc */
