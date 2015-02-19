@@ -374,72 +374,33 @@ public class TentaOnline extends ActionBarActivity implements AsyncResponse{
 
         // Checks if submit exam was clicked
         if (id == R.id.menuSubmit) {
-            JSONObject answersObj;
+            JSONObject answersObj=null;
             JSONArray answersArr = new JSONArray();
             JSONObject answersFinalObj = new JSONObject();
             int radioNumber=0;
             int textNumber=0;
             int checkboxNumber=0;
             try{
+                for(int i=0;i< examArray.length();i++){
+                    JSONObject questionObject = examArray.getJSONObject(i);
 
-             for(int i=0;i< examArray.length();i++){
-                JSONObject questionObject = examArray.getJSONObject(i);
+                    switch (questionObject.getString("Type")){
 
-                if(questionObject.getString("Type").equals("radio")){
-                    RadioGroup radioGroup=(RadioGroup) pagesLayout.get(i).findViewById(1000+radioNumber);
-                    RadioButton radioButton = (RadioButton)radioGroup.findViewById(radioGroup.getCheckedRadioButtonId());
-                    answersObj = new JSONObject();
-                    radioNumber++;
-                    int optionNumber= radioGroup.indexOfChild(radioButton);
-                    try{
-                        answersObj.put("ID",i);
-                        if(optionNumber<0){answersObj.put("Answer","");}
-                        else{answersObj.put("Answer", "option" + optionNumber);}
-                        answersArr.put(answersObj);
+                        case "radio":
+                            submitRadio(answersObj,answersArr,radioNumber,i);
+                        break;
 
-                    }catch (JSONException e){
-                        Log.d("Threw exception"," " + e);
+                        case "checkbox":
+                            submitCheck(answersObj,answersArr,checkboxNumber,i);
+                        break;
+
+                        case "text":
+                            submitText(answersObj,answersArr,textNumber,i);
+                        break;
                     }
                 }
-
-                if(questionObject.getString("Type").equals("checkbox")){
-                    LinearLayout checkboxLayout=(LinearLayout) pagesLayout.get(i).findViewById(3000+checkboxNumber);
-                    answersObj = new JSONObject();
-                    JSONObject answerObj = new JSONObject();
-                    checkboxNumber++;
-                    JSONArray ansOptArr = new JSONArray();
-                    for(int j=0;j<checkboxLayout.getChildCount();j++){
-                        CheckBox checkboxAtPosition=(CheckBox)checkboxLayout.getChildAt(j);
-                        if(checkboxAtPosition.isChecked()){
-                            ansOptArr.put("option" + checkboxAtPosition.getId());
-                        }
-                    }
-                    try{
-                        answersObj.put("ID",i);
-                        answersObj.put("Answer",ansOptArr);
-                        answersArr.put(answersObj);
-
-                    }catch (JSONException e){
-                        Log.d("Threw exception"," " + e);
-                    }
-                }
-
-                if(questionObject.getString("Type").equals("text")){
-                    EditText edit = (EditText) pagesLayout.get(i).findViewById(2000+textNumber);
-                    textNumber++;
-                    try{
-                        answersObj = new JSONObject();
-                        answersObj.put("ID",i);
-                        answersObj.put("Answer", edit.getText());
-                        answersArr.put(answersObj);
-
-                    }catch (JSONException e){
-                        Log.d("Threw exception"," " + e);
-                    }
-                }
-            }
             }catch (Throwable t){
-            Log.d("Threw exception"," " + t);
+                Log.d("Threw exception"," " + t);
             }
 
             try{
@@ -461,6 +422,63 @@ public class TentaOnline extends ActionBarActivity implements AsyncResponse{
         }
         return super.onOptionsItemSelected(item);
     }
+
+
+    private void submitRadio(JSONObject answersObj,JSONArray answersArr, int radioNumber,int i){
+        RadioGroup radioGroup=(RadioGroup) pagesLayout.get(i).findViewById(1000+radioNumber);
+        RadioButton radioButton = (RadioButton)radioGroup.findViewById(radioGroup.getCheckedRadioButtonId());
+        answersObj = new JSONObject();
+        radioNumber++;
+        int optionNumber= radioGroup.indexOfChild(radioButton);
+        try{
+            answersObj.put("ID",i);
+            if(optionNumber<0){answersObj.put("Answer","");}
+            else{answersObj.put("Answer", "option" + optionNumber);}
+            answersArr.put(answersObj);
+
+        }catch (JSONException e){
+            Log.d("Threw exception"," " + e);
+        }
+    }
+
+    private void submitCheck(JSONObject answersObj,JSONArray answersArr, int checkboxNumber, int i){
+        LinearLayout checkboxLayout=(LinearLayout) pagesLayout.get(i).findViewById(3000+checkboxNumber);
+        answersObj = new JSONObject();
+        JSONObject answerObj = new JSONObject();
+        checkboxNumber++;
+        JSONArray ansOptArr = new JSONArray();
+        for(int j=0;j<checkboxLayout.getChildCount();j++){
+            CheckBox checkboxAtPosition=(CheckBox)checkboxLayout.getChildAt(j);
+            if(checkboxAtPosition.isChecked()){
+                ansOptArr.put("option" + checkboxAtPosition.getId());
+            }
+        }
+        try{
+            answersObj.put("ID",i);
+            answersObj.put("Answer",ansOptArr);
+            answersArr.put(answersObj);
+
+        }catch (JSONException e){
+            Log.d("Threw exception"," " + e);
+        }
+    }
+
+    private void submitText(JSONObject answersObj, JSONArray answersArr, int textNumber, int i){
+        EditText edit = (EditText) pagesLayout.get(i).findViewById(2000+textNumber);
+        textNumber++;
+        try{
+            answersObj = new JSONObject();
+            answersObj.put("ID",i);
+            answersObj.put("Answer", edit.getText());
+            answersArr.put(answersObj);
+
+        }catch (JSONException e){
+            Log.d("Threw exception"," " + e);
+        }
+
+    }
+
+
 }
 
 
