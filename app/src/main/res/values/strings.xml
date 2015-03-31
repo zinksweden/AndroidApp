@@ -7,4 +7,14 @@
     <string name="hello_world">Hello world!</string>
     <string name="action_settings">Settings</string>
 
+    <color name="lightbrown">#E8D0A9</color>
+    <color name="darkbrown">#33485d</color>
+    <color name="bluegreen">#1abc9c</color>
+    <color name="lightblue">#ffffff</color>
+    <color name="blue">#ACD1E9</color>
+    <color name="darkblue">#2c3e50</color>
+    <color name="white">#ffffff</color>
+    <color name="black">#000000</color>
+
+
 </resources>

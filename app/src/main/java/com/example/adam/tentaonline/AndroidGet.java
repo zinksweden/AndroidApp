@@ -1,6 +1,7 @@
 package com.example.adam.tentaonline;
 
 import android.os.AsyncTask;
+import android.text.Html;
 import android.util.Log;
 import android.widget.Toast;
 
@@ -22,20 +23,26 @@ import java.io.BufferedReader;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.URLEncoder;
+import java.nio.ByteBuffer;
+import java.nio.CharBuffer;
+import java.nio.charset.Charset;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Created by Adam on 2015-01-30.
  */
 public class AndroidGet extends AsyncTask<String,String,String> {
     public AsyncResponse delegate=null;
+    Boolean isCode=false;
 
     protected String doInBackground(String... param) {
 
         StringBuilder sb = null;
         InputStream is = null;
         String result = null;
-
+        int x=0;
 
         //http post
         try {
@@ -51,8 +58,24 @@ public class AndroidGet extends AsyncTask<String,String,String> {
 
             HttpClient httpclient = new DefaultHttpClient(params);
 
+
+
+            HttpPost httppost;
+            if(param.length>4 && param[5]=="Code"){
+                if(param[1]=="c++"){param[1]="cpp"; }
+                isCode=true;
+
+                JSONObject fileMap = new JSONObject();
+                fileMap.put("name", param[3] + "." + param[1]);
+                fileMap.put("content", param[4]);
+                httppost = new HttpPost("http://83.183.12.45/" + param[0]+ "?language=" + param[1] + "&taskId="  + param[2] + "&file=" + URLEncoder.encode(fileMap.toString(), "UTF-8")+ "&Output="  + URLEncoder.encode(param[6],"UTF-8") +  "&ShowOutput=" + param[7] + "&ShowCompile=" + param[8] );
+            }
+            else{
+                isCode=false;
+                httppost = new HttpPost("http://83.183.12.45/" + param[0]+ "?course_code=" + URLEncoder.encode(param[1], "UTF-8"));  //ändra foldername
+            }
             //Why to use 10.0.2.2
-            HttpPost httppost = new HttpPost("http://83.183.12.45/android/get.php?course_code=" + URLEncoder.encode(param[0], "UTF-8"));  //ändra foldername
+
             httppost.setEntity(new UrlEncodedFormEntity(nameValuePairs));
             HttpResponse response = httpclient.execute(httppost);
             HttpEntity entity = response.getEntity();
@@ -85,7 +108,14 @@ public class AndroidGet extends AsyncTask<String,String,String> {
     protected void onPostExecute(String result) {
 
         try {
-            delegate.processFinish(result);
+            if(isCode){
+                delegate.codeFinish(result);
+            }
+            else {
+
+
+                delegate.processFinish(result);
+            }
 
         }catch (Exception e) {
             Log.e("log_tag", "Error parsing data "+e.toString());

@@ -5,4 +5,5 @@ package com.example.adam.tentaonline;
  */
 public interface AsyncResponse {
     void processFinish(String output);
+    void codeFinish(String output);
 }

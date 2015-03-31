@@ -47,7 +47,7 @@ public class AndroidPost extends AsyncTask<String,String,String> {
             HttpClient httpclient = new DefaultHttpClient(params);
 
             //Why to use 10.0.2.2
-            HttpPost httppost = new HttpPost("http://83.183.12.45/android/post.php?course_code=" + URLEncoder.encode(param[0], "UTF-8") + "&student_id=" + URLEncoder.encode(param[1], "UTF-8") + "&answer=" + URLEncoder.encode(param[2], "UTF-8"));  //ändra foldername
+            HttpPost httppost = new HttpPost("http://83.183.12.45/" + param[0] + "?course_code=" + URLEncoder.encode(param[1], "UTF-8") + "&student_id=" + URLEncoder.encode(param[2], "UTF-8") + "&answer=" + URLEncoder.encode(param[3], "UTF-8"));  //ändra foldername
             httppost.setEntity(new UrlEncodedFormEntity(nameValuePairs));
             HttpResponse response = httpclient.execute(httppost);
             HttpEntity entity = response.getEntity();
@@ -55,9 +55,6 @@ public class AndroidPost extends AsyncTask<String,String,String> {
         } catch (Exception e) {
             Log.e("log_tag", "Error in http connection " + e.toString());
         }
-
-
-
 
         return "";
     }

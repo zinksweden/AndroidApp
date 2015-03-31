@@ -2,18 +2,11 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools" tools:context=".TentaOnline">
 
+
     <item
-        android:icon="@drawable/ic_launcher"
-        android:title="test"
+        android:id="@+id/submitExam"
+        android:title="Submit Exam"
         app:showAsAction="ifRoom">
-        <menu>
-            <item
-                android:id="@+id/menuTest"
-                android:title="Test" />
-            <item
-                android:id="@+id/menuSubmit"
-                android:title="Submit exam" />
-        </menu>
     </item>
 
 </menu>
