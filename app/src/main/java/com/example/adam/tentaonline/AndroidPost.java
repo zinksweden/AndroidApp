@@ -11,15 +11,19 @@ import org.apache.http.client.HttpClient;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.params.BasicHttpParams;
 import org.apache.http.params.HttpConnectionParams;
 import org.apache.http.params.HttpParams;
 import org.apache.http.params.HttpProtocolParams;
 import org.apache.http.protocol.HTTP;
 
+import java.io.BufferedReader;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.net.URLEncoder;
 import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Created by Adam on 2015-02-02.
@@ -33,9 +37,12 @@ public class AndroidPost extends AsyncTask<String,String,String> {
 
         InputStream is = null;
         try {
-            ArrayList<NameValuePair> nameValuePairs = new ArrayList<NameValuePair>();
+            //ArrayList<NameValuePair> nameValuePairs = new ArrayList<NameValuePair>();
 
             //Log.d("KURs",urls[0]);
+
+
+            //
 
             HttpParams params = new BasicHttpParams();
             HttpConnectionParams.setConnectionTimeout(params, 10000);
@@ -47,13 +54,39 @@ public class AndroidPost extends AsyncTask<String,String,String> {
             HttpClient httpclient = new DefaultHttpClient(params);
 
             //Why to use 10.0.2.2
-            HttpPost httppost = new HttpPost("http://83.183.12.45/" + param[0] + "?course_code=" + URLEncoder.encode(param[1], "UTF-8") + "&student_id=" + URLEncoder.encode(param[2], "UTF-8") + "&answer=" + URLEncoder.encode(param[3], "UTF-8"));  //ändra foldername
-            httppost.setEntity(new UrlEncodedFormEntity(nameValuePairs));
+            //HttpPost httppost = new HttpPost("http://83.183.12.45/" + param[0] + "?course_code=" + URLEncoder.encode(param[1], "UTF-8") + "&student_id=" + URLEncoder.encode(param[2], "UTF-8") + "&answer=" + URLEncoder.encode(param[3], "UTF-8"));  //ändra foldername
+
+            HttpPost httppost = new HttpPost("http://83.183.12.45/" + param[0]);  //ändra foldername
+
+            List<NameValuePair> nameValuePairs = new ArrayList<NameValuePair>(3);
+            nameValuePairs.add(new BasicNameValuePair("course_code",param[1]));
+            nameValuePairs.add(new BasicNameValuePair("student_id", param[2]));
+            nameValuePairs.add(new BasicNameValuePair("answer", param[3]));
+            httppost.setEntity(new UrlEncodedFormEntity(nameValuePairs,"UTF-8"));
+
+            //httppost.setEntity(new UrlEncodedFormEntity(nameValuePairs));
             HttpResponse response = httpclient.execute(httppost);
             HttpEntity entity = response.getEntity();
             is = entity.getContent();
+
         } catch (Exception e) {
             Log.e("log_tag", "Error in http connection " + e.toString());
+        }
+
+        try {
+            BufferedReader reader = new BufferedReader(new InputStreamReader(is, "utf-8"), 8);
+            StringBuilder sb = new StringBuilder();
+            sb.append(reader.readLine() + "\n");
+
+            String line = null;
+            while ((line = reader.readLine()) != null) {
+                sb.append(line + "\n");
+            }
+            is.close();
+            String result = sb.toString();
+            Log.d("Result", "" + result);
+        } catch (Exception e) {
+            Log.e("log_tag", "Error converting result " + e.toString());
         }
 
         return "";

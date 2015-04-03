@@ -3,6 +3,8 @@
 
     <item type="id" name="radiogroup" />
 
+    <item type="id" name="questionLayout" />
+
     <string name="app_name">TentaOnline</string>
     <string name="hello_world">Hello world!</string>
     <string name="action_settings">Settings</string>
@@ -15,6 +17,9 @@
     <color name="darkblue">#2c3e50</color>
     <color name="white">#ffffff</color>
     <color name="black">#000000</color>
+    <color name="darkgrey">#212121</color>
+    <color name="lightgrey">#323232</color>
+
 
 
 </resources>

@@ -4,6 +4,13 @@
 
 
     <item
+        android:id="@+id/swapView"
+        android:title="Swap view"
+        app:showAsAction="ifRoom">
+
+    </item>
+
+    <item
         android:id="@+id/submitExam"
         android:title="Submit Exam"
         app:showAsAction="ifRoom">

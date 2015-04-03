@@ -11,6 +11,7 @@ import org.apache.http.HttpVersion;
 import org.apache.http.NameValuePair;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
+import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.protocol.HTTP;
@@ -46,7 +47,7 @@ public class AndroidGet extends AsyncTask<String,String,String> {
 
         //http post
         try {
-            ArrayList<NameValuePair> nameValuePairs = new ArrayList<NameValuePair>();
+            //ArrayList<NameValuePair> nameValuePairs = new ArrayList<NameValuePair>();
             //Log.d("KURs",urls[0]);
 
             HttpParams params = new BasicHttpParams();
@@ -59,8 +60,8 @@ public class AndroidGet extends AsyncTask<String,String,String> {
             HttpClient httpclient = new DefaultHttpClient(params);
 
 
-
-            HttpPost httppost;
+            HttpGet httpget;
+            //HttpPost httppost;
             if(param.length>4 && param[5]=="Code"){
                 if(param[1]=="c++"){param[1]="cpp"; }
                 isCode=true;
@@ -68,16 +69,16 @@ public class AndroidGet extends AsyncTask<String,String,String> {
                 JSONObject fileMap = new JSONObject();
                 fileMap.put("name", param[3] + "." + param[1]);
                 fileMap.put("content", param[4]);
-                httppost = new HttpPost("http://83.183.12.45/" + param[0]+ "?language=" + param[1] + "&taskId="  + param[2] + "&file=" + URLEncoder.encode(fileMap.toString(), "UTF-8")+ "&Output="  + URLEncoder.encode(param[6],"UTF-8") +  "&ShowOutput=" + param[7] + "&ShowCompile=" + param[8] );
+                httpget = new HttpGet("http://83.183.12.45/" + param[0]+ "?language=" + param[1] + "&taskId="  + param[2] + "&file=" + URLEncoder.encode(fileMap.toString(), "UTF-8")+ "&Output="  + URLEncoder.encode(param[6],"UTF-8") +  "&ShowOutput=" + param[7] + "&ShowCompile=" + param[8] );
             }
             else{
                 isCode=false;
-                httppost = new HttpPost("http://83.183.12.45/" + param[0]+ "?course_code=" + URLEncoder.encode(param[1], "UTF-8"));  //ändra foldername
+                httpget = new HttpGet("http://83.183.12.45/" + param[0]+ "?course_code=" + URLEncoder.encode(param[1], "UTF-8"));  //ändra foldername
             }
             //Why to use 10.0.2.2
 
-            httppost.setEntity(new UrlEncodedFormEntity(nameValuePairs));
-            HttpResponse response = httpclient.execute(httppost);
+            //httppost.setEntity(new UrlEncodedFormEntity(nameValuePairs));
+            HttpResponse response = httpclient.execute(httpget);
             HttpEntity entity = response.getEntity();
             is = entity.getContent();
         } catch (Exception e) {
