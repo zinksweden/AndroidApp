@@ -76,6 +76,7 @@ public class StartScreen extends ActionBarActivity {
                 EditText courseCode = (EditText) findViewById(R.id.editText);
                 EditText anonymityCode = (EditText) findViewById(R.id.editText2);
 
+
                 Intent intent = new Intent(context, TentaOnline.class);
                 intent.putExtra("courseCode",courseCode.getText().toString());
                 intent.putExtra("anonymityCode",anonymityCode.getText().toString());

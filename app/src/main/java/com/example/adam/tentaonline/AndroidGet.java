@@ -63,7 +63,7 @@ public class AndroidGet extends AsyncTask<String,String,String> {
             HttpGet httpget;
             //HttpPost httppost;
             if(param.length>4 && param[5]=="Code"){
-                if(param[1]=="c++"){param[1]="cpp"; }
+                if(param[1].equals("c++")){param[1]="cpp";}
                 isCode=true;
 
                 JSONObject fileMap = new JSONObject();
