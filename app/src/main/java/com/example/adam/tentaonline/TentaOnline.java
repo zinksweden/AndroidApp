@@ -46,6 +46,8 @@ public class TentaOnline extends ActionBarActivity implements AsyncResponse{
     final int drawPageButtonId=9000;
     final int drawLayoutId=11000;
 
+     Button nextButton;
+     Button prevButton;
 
     LinearLayout mainLayout;
 
@@ -129,25 +131,24 @@ public class TentaOnline extends ActionBarActivity implements AsyncResponse{
 
             //final RelativeLayout navButtonLayout = (RelativeLayout) findViewById(R.id.linearLayout3);
 
-            final Button nextButton = (Button) findViewById(R.id.nextArrow);
-            final Button prevButton = (Button) findViewById(R.id.prevArrow);
-
+            nextButton = (Button) findViewById(R.id.nextArrow);
+            prevButton = (Button) findViewById(R.id.prevArrow);
             nextButtonOnClick(nextButton,prevButton);
             prevButtonOnClick(nextButton,prevButton);
 
             //TEST
-            drawNextButton = (Button) findViewById(R.id.drawPageNext);
-            drawPrevButton = (Button) findViewById(R.id.drawPagePrev);
-            hideDrawButton();
-            drawNextButtonOnClick();
-            drawPrevButtonOnClick();
+            //drawNextButton = (Button) findViewById(R.id.drawPageNext);
+            //drawPrevButton = (Button) findViewById(R.id.drawPagePrev);
+            //hideDrawButton();
+            //drawNextButtonOnClick();
+            //drawPrevButtonOnClick();
             //test
 
 
             questionButtonsLayout= new LinearLayout(this);
             addHeaderButton(headerObject,nextButton,prevButton);
             createQuestionPages(nextButton,prevButton);
-            addNextPrevButton(nextButton,prevButton);
+            addNextPrevButton();
 
 
 
@@ -161,26 +162,31 @@ public class TentaOnline extends ActionBarActivity implements AsyncResponse{
     private void nextButtonOnClick(final Button nextButton, final Button prevButton)
     {
         nextButton.setOnClickListener(new View.OnClickListener() {
-                public void onClick(View v) {
-                myTestLayout.removeAllViews();
-                myTestLayout.addView(pagesLayout.get((currentQuestion + 1)));
-                currentQuestion++;
+             public void onClick(View v) {
+                 Log.d("FÖRSTA","kklickad");
+              if(currentlyDrawView){
+                  Log.d("inne","första");
+                  drawNextButtonOnClick();
+              }
+              else{
+                  Log.d("innee","andra");
+                  myTestLayout.removeAllViews();
+                  myTestLayout.addView(pagesLayout.get((currentQuestion + 1)));
+                  currentQuestion++;
+                  //
+                  unclickButton();
 
-                //
-                unclickButton();
+                  Button currButton = (Button) questionButtonLayout.findViewById(currentQuestion + questionButtonId);
+                  currButton.setBackgroundResource(R.drawable.button_shape_clicked);
+                  lastClickedButton=currButton;
 
+                  animatedQuestionScrollView();
 
+                  addNextPrevButton();
 
-                Button currButton = (Button) questionButtonLayout.findViewById(currentQuestion + questionButtonId);
-                currButton.setBackgroundResource(R.drawable.button_shape_clicked);
-                lastClickedButton=currButton;
-
-                animatedQuestionScrollView();
-
-                addNextPrevButton(nextButton, prevButton);
-
-                hideDrawButton();
-                currentDrawPage=0;
+                  //hideDrawButton();
+                  currentDrawPage=0;
+              }
             }
         });
     }
@@ -190,91 +196,82 @@ public class TentaOnline extends ActionBarActivity implements AsyncResponse{
     {
         prevButton.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
-                myTestLayout.removeAllViews();
-                Log.d("Curr = ","" + currentQuestion);
-                Button currButton;
-                if(currentQuestion==0){
-                    myTestLayout.addView(pageLayoutHeader);
-                    currentQuestion--;
 
-                    LinearLayout kk = questionButtonLayout;
+              if(currentlyDrawView){
+                  drawPrevButtonOnClick();
+              }
+              else{
+                  myTestLayout.removeAllViews();
+                  Log.d("Curr = ","" + currentQuestion);
+                  Button currButton;
+                  if(currentQuestion==0){
+                      myTestLayout.addView(pageLayoutHeader);
+                      currentQuestion--;
 
-                    currButton = (Button) questionButtonsLayout.getChildAt(0);
+                      LinearLayout kk = questionButtonLayout;
 
-                }
-                else{
-                    myTestLayout.addView(pagesLayout.get((currentQuestion-1)));
-                    currentQuestion--;
+                      currButton = (Button) questionButtonsLayout.getChildAt(0);
 
-                    currButton = (Button) questionButtonLayout.findViewById(currentQuestion + questionButtonId);
+                  }
+                  else{
+                      myTestLayout.addView(pagesLayout.get((currentQuestion-1)));
+                      currentQuestion--;
+
+                      currButton = (Button) questionButtonLayout.findViewById(currentQuestion + questionButtonId);
 
 
-                }
-                currButton.setBackgroundResource(R.drawable.button_shape_clicked);
-                unclickButton();
-                lastClickedButton=currButton;
+                  }
+                  currButton.setBackgroundResource(R.drawable.button_shape_clicked);
+                  unclickButton();
+                  lastClickedButton=currButton;
 
-                animatedQuestionScrollView();
+                  animatedQuestionScrollView();
 
-                addNextPrevButton(nextButton,prevButton);
+                  addNextPrevButton();
 
-                hideDrawButton();
-                currentDrawPage=0;
+                  //hideDrawButton();
+                  currentDrawPage=0;
+              }
+
             }
         });
     }
 
 //drawPage next and prev
     private void drawPrevButtonOnClick(){
-        drawPrevButton.setOnClickListener(new View.OnClickListener() {
-
-            public void onClick(View v) {
-
                 if(currentDrawPage!=0){
                     saveBitmap();
                     currentDrawPage--;
                     switchToDrawPage();
-
                 }
-
                 enableDrawButton();
-
-            }
-        });
     }
 
     private void drawNextButtonOnClick(){
-        drawNextButton.setOnClickListener(new View.OnClickListener() {
-
-            public void onClick(View v) {
-
+        Log.d("KLICKED","sda");
                 saveBitmap();
                 currentDrawPage++;
                 switchToDrawPage();
-
                 enableDrawButton();
                 addDrawPageButton();
-
-
-            }
-        });
     }
 
     private void enableDrawButton(){
 
-        drawNextButton.setVisibility(View.VISIBLE);
-        drawPrevButton.setVisibility(View.VISIBLE);
+        nextButton.setEnabled(true);
+        prevButton.setEnabled(true);
 
         if(currentDrawPage==0){
-            drawPrevButton.setVisibility(View.GONE);
+            prevButton.setEnabled(false);
         }
 
     }
 
+    /*
     private void hideDrawButton(){
         drawPrevButton.setVisibility(View.GONE);
         drawNextButton.setVisibility(View.GONE);
-    }
+    }*/
 
 //drawPage next prev button end
 
@@ -320,9 +317,9 @@ public class TentaOnline extends ActionBarActivity implements AsyncResponse{
                         currentQuestion = (questionButton.getId() - questionButtonId);
                         lastClickedButton=questionButton;
                         animatedQuestionScrollView();
-                        addNextPrevButton(nextButton, prevButton);
+                        addNextPrevButton();
 
-                        hideDrawButton();
+                        //hideDrawButton();
                         currentDrawPage=0;
                     }
                 });
@@ -407,7 +404,7 @@ public class TentaOnline extends ActionBarActivity implements AsyncResponse{
     }
 
     /* Removes next/prev buttons and calls functions to add them */
-    public void addNextPrevButton(Button nextButton, Button prevButton){
+    public void addNextPrevButton(){
         //buttonLayout.removeAllViews();
         nextButton.setEnabled(false);
         prevButton.setEnabled(false);
@@ -477,7 +474,7 @@ public class TentaOnline extends ActionBarActivity implements AsyncResponse{
                 lastClickedButton=headerButton;
                 animatedQuestionScrollView();
                 currentQuestion=-1;
-                addNextPrevButton(nextButton,prevButton);
+                addNextPrevButton();
             }
         });
     }
@@ -739,8 +736,8 @@ public class TentaOnline extends ActionBarActivity implements AsyncResponse{
             final Button b = new Button(this);
 
             b.setId(drawPageButtonId + inc );
-            Log.d("id är " ,"" + (drawPageButtonId + inc) );
-            b.setText("Drawpag " + pageindex);
+            b.setText("Image " + (inc + 1));
+
 
             //
             b.setOnClickListener(new View.OnClickListener() {
@@ -765,41 +762,6 @@ public class TentaOnline extends ActionBarActivity implements AsyncResponse{
             drawPageButtons.put(pageindex,butt);
             }
 
-            //
-                /*
-                 final Button questionButton = new Button(this);
-                questionButton.setId(questionButtonId + i);
-                questionButton.setText("  Question " + (i + 1) + "  ");
-                questionButton.setBackgroundResource(R.drawable.button_shape);
-                questionButton.setTextColor(Color.WHITE);
-                questionButton.setOnClickListener(new View.OnClickListener() {
-                    public void onClick(View v) {
-                        myTestLayout.removeAllViews();
-                        myTestLayout.addView(pagesLayout.get((questionButton.getId() - questionButtonId)));
-
-                        unclickButton();
-                        questionButton.setBackgroundResource(R.drawable.button_shape_clicked);
-
-                        currentQuestion = (questionButton.getId() - questionButtonId);
-                        lastClickedButton=questionButton;
-                        animatedQuestionScrollView();
-                        addNextPrevButton(nextButton, prevButton);
-
-                        hideDrawButton();
-                        currentDrawPage=0;
-                    }
-                });
-
-
-                */
-            //
-
-
-
-
-
-
-
     }
 
     private void switchToDrawPage(){
@@ -809,11 +771,9 @@ public class TentaOnline extends ActionBarActivity implements AsyncResponse{
 
 
         if(mapBits.indexOfKey(pageindex)>=0  && mapBits.get(pageindex).size()>currentDrawPage){
-            Log.d("TT", "" + mapBits.indexOfKey(pageindex) + "   "  + mapBits.get(pageindex).size()+ "     " + currentDrawPage);
             canvasBitmap=mapBits.get(pageindex).get(currentDrawPage);
         }
         else{
-            Log.d("NEW","SKAPAR NEW");
             canvasBitmap = Bitmap.createBitmap(800, 905, Bitmap.Config.ARGB_8888);
 
         }
@@ -821,7 +781,7 @@ public class TentaOnline extends ActionBarActivity implements AsyncResponse{
         //
         LinearLayout drawLayout = new LinearLayout(this);
         drawLayout.setOrientation(LinearLayout.VERTICAL);
-        addQuestionnumberText(("Question " + (currentQuestion+1)),30);
+        addQuestionnumberText(("Question " + (currentQuestion+1) + " - image " + (currentDrawPage+1)),30);
         drawLayout.addView(questionnumberLayout);
 
         drawLayout.addView(createDrawPage(canvasBitmap,c));
@@ -880,10 +840,11 @@ public class TentaOnline extends ActionBarActivity implements AsyncResponse{
 
             if(currentlyDrawView){
                 questionButtonLayout.addView(questionButtonsLayout);
-                hideDrawButton();
+                //hideDrawButton();
                 myTestLayout.addView(pagesLayout.get((lastClickedButton.getId() - questionButtonId)));
                 currentlyDrawView=false;
                 saveBitmap();
+                addNextPrevButton();
             }
             else{
                 addDrawPageButton();
@@ -892,6 +853,9 @@ public class TentaOnline extends ActionBarActivity implements AsyncResponse{
                 enableDrawButton();
                 switchToDrawPage();
                 currentlyDrawView=true;
+
+
+
             }
 
         }
