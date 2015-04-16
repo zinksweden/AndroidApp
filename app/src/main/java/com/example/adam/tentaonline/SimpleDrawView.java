@@ -25,6 +25,7 @@ public class SimpleDrawView extends View{
     //canvas bitmap
     private Bitmap canvasBitmap;
 
+    private boolean freeDraw=true;
     /*
     private final int paintColor = Color.BLACK;
     // defines paint and canvas
@@ -41,12 +42,18 @@ public class SimpleDrawView extends View{
         //setupPaint();
     }
 
-    public SimpleDrawView(Context context) {
+    public SimpleDrawView(Context context, Bitmap b, Canvas c) {
         super(context);
         setupDrawing();
         setFocusable(true);
         setFocusableInTouchMode(true);
+        drawCanvas=c;
+        canvasBitmap=b;
         //setupPaint();
+    }
+
+    public void setFreeDraw(Boolean fd){
+        freeDraw=fd;
     }
 
 
@@ -70,10 +77,11 @@ public class SimpleDrawView extends View{
 
     @Override
     protected void onSizeChanged(int w, int h, int oldw, int oldh) {
-        //Log.d("RESISZ","TES");
         super.onSizeChanged(w, h, oldw, oldh);
-        canvasBitmap = Bitmap.createBitmap(w, h, Bitmap.Config.ARGB_8888);
-        drawCanvas = new Canvas(canvasBitmap);
+        //Log.d("W och h ", "" + w + " " + h);
+        //canvasBitmap = Bitmap.createBitmap(w, h, Bitmap.Config.ARGB_8888);
+        //drawCanvas = new Canvas(canvasBitmap);
+
 //view given size
     }
 
@@ -93,11 +101,19 @@ public class SimpleDrawView extends View{
                 drawPath.moveTo(touchX, touchY);
                 break;
             case MotionEvent.ACTION_MOVE:
-                drawPath.lineTo(touchX, touchY);
+                if(freeDraw){
+                    drawPath.lineTo(touchX, touchY);
+                }
+
                 break;
             case MotionEvent.ACTION_UP:
+                if(!freeDraw){
+                    drawPath.lineTo(touchX, touchY);
+                }
+
                 drawCanvas.drawPath(drawPath, drawPaint);
                 drawPath.reset();
+                //spara bitmapen till array?
                 break;
             default:
                 return false;

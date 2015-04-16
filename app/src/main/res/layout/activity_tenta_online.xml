@@ -18,6 +18,7 @@
     </LinearLayout>
 
 
+
     <RelativeLayout
 
         android:id="@+id/linearLayoutKnapp"
@@ -71,7 +72,37 @@
 
     </RelativeLayout>
 
+    <RelativeLayout
+        android:id="@+id/drawPageButtons"
+        android:orientation="horizontal"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_above="@id/linearLayoutKnapp" >
 
+        <Button
+            android:id="@+id/drawPagePrev"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="  Previous Drawpage  "
+            android:textColor="@color/white"
+            android:background="@drawable/info_button"
+            android:layout_alignParentLeft="true"
+
+            />
+
+        <Button
+            android:id="@+id/drawPageNext"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="  Next Drawpage  "
+            android:textColor="@color/white"
+            android:background="@drawable/info_button"
+            android:layout_alignParentRight="true"
+            />
+
+
+
+    </RelativeLayout>
 
 
 
