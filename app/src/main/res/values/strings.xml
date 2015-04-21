@@ -8,6 +8,7 @@
     <string name="app_name">TentaOnline</string>
     <string name="hello_world">Hello world!</string>
     <string name="action_settings">Settings</string>
+    <string name="regexCodePattern"><Data><![CDATA[ <sc-begin>(.*)</sc-end> ]]> </Data></string>
 
     <color name="lightbrown">#E8D0A9</color>
     <color name="darkbrown">#33485d</color>

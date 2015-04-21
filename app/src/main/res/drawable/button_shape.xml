@@ -20,5 +20,4 @@
             <solid android:color="@color/darkgrey" />
         </shape>
     </item>
-
 </layer-list>

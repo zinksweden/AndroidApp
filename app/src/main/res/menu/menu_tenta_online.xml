@@ -2,10 +2,18 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools" tools:context=".TentaOnline">
 
+    <item
+        android:id="@+id/pictureIndicator"
+        android:icon="@drawable/ic_image"
+        android:title="x0"
+        android:visible="false"
+        app:showAsAction="always|withText">
+
+    </item>
 
     <item
         android:id="@+id/swapView"
-        android:title="Swap view"
+        android:title="Draw image"
         app:showAsAction="ifRoom">
 
     </item>

@@ -11,6 +11,12 @@ import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 
+/*
+* Soruce code from
+* Sue Smith
+* http://code.tutsplus.com/tutorials/android-sdk-create-a-drawing-app-touch-interaction--mobile-19202 2/4-15
+* Modified by Adam Larsson
+* */
 public class SimpleDrawView extends View{
 
 
@@ -26,13 +32,7 @@ public class SimpleDrawView extends View{
     private Bitmap canvasBitmap;
 
     private boolean freeDraw=true;
-    /*
-    private final int paintColor = Color.BLACK;
-    // defines paint and canvas
-    private Paint drawPaint;
-    // stores next circle
-    private Path path = new Path();
-    */
+
 
     public SimpleDrawView(Context context, AttributeSet attrs) {
         super(context, attrs);
@@ -78,11 +78,6 @@ public class SimpleDrawView extends View{
     @Override
     protected void onSizeChanged(int w, int h, int oldw, int oldh) {
         super.onSizeChanged(w, h, oldw, oldh);
-        //Log.d("W och h ", "" + w + " " + h);
-        //canvasBitmap = Bitmap.createBitmap(w, h, Bitmap.Config.ARGB_8888);
-        //drawCanvas = new Canvas(canvasBitmap);
-
-//view given size
     }
 
     @Override
