@@ -2,7 +2,6 @@ package com.example.adam.tentaonline;
 
 
 import android.animation.ObjectAnimator;
-import android.app.ActionBar;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.graphics.Bitmap;
@@ -14,15 +13,11 @@ import android.os.Bundle;
 import android.text.Editable;
 import android.text.Html;
 import android.text.InputType;
-import android.text.Layout;
-import android.text.Spannable;
-import android.text.SpannableString;
 import android.text.TextWatcher;
 import android.util.Base64;
 import android.util.SparseArray;
 import android.view.Gravity;
 import android.view.KeyEvent;
-import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -40,14 +35,10 @@ import android.util.Log;
 
 import java.io.ByteArrayOutputStream;
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-
-import java.text.BreakIterator;
 
 
 public class TentaOnline extends ActionBarActivity implements AsyncResponse{
@@ -98,15 +89,19 @@ public class TentaOnline extends ActionBarActivity implements AsyncResponse{
     PrettifyHighlighter highlighter = new PrettifyHighlighter();
     String highlighted;
 
+    //LinearLayout drawButtons;
+
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
+
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_tenta_online);
 
 
         courseCode = getIntent().getStringExtra("courseCode");
         anonymityCode =getIntent().getStringExtra("anonymityCode");
+        String tenta =getIntent().getStringExtra("tenta");
 
         myTestLayout = (LinearLayout) findViewById(R.id.linearLayout1);
         questionButtonLayout = (LinearLayout) findViewById(R.id.linearLayout2);
@@ -118,18 +113,14 @@ public class TentaOnline extends ActionBarActivity implements AsyncResponse{
         mainLayout.setLayoutParams(LLParams);
         mainLayout.setOrientation(LinearLayout.VERTICAL);
         mainLayout.setBackgroundColor(getResources().getColor(R.color.lightblue));
-        AndroidGet asyncGetExam = new AndroidGet();
-        // Sets delegate variable in AndroidGet.java to this
-        asyncGetExam.delegate = this;
-        // Execute AndroidGet.java
-        asyncGetExam.execute("android/get/get.php", courseCode);
+
+        createExam(tenta);
 
     }
 
     /** Gets called when the AndroidGet.java finish executing*/
     public void processFinish(String output){
-        createExam(output);
-        //this you will received result fired from async class of onPostExecute(result) method.
+
     }
 
     /** Create the exam components  */
@@ -334,6 +325,7 @@ public class TentaOnline extends ActionBarActivity implements AsyncResponse{
 
             }
             questionButtonLayout.addView(questionButtonsLayout);
+            //addDrawingButtons();
         }
         catch (Throwable t){
             Log.d("Threw exception"," " + t);
@@ -367,11 +359,18 @@ public class TentaOnline extends ActionBarActivity implements AsyncResponse{
         questionnumberLayout.addView(questionView);
     }
 
+    // HTML
+    private String makeHtmlText(String text){
+        return text.replace(" ","&nbsp;").replace("\n","<br>").replace("\t","&emsp;");
+    }
+
+    //
+
     private void createQuestion(LinearLayout pageLayout, int i, JSONObject questionObject){
 
         try{
             addQuestionnumberText(("Question " + (i + 1)), 30);
-            addText(questionObject.getString("Question"), 25, false, pageLayout);
+            addText(makeHtmlText(questionObject.getString("Question")), 25, false, pageLayout,true);
 
             if (questionObject.getString("Type").equals("radio")) {
                 addRadio(getOptionsArray(questionObject), pageLayout);
@@ -472,12 +471,12 @@ public class TentaOnline extends ActionBarActivity implements AsyncResponse{
     public void addHeader(JSONObject headerObject,LinearLayout pageLayout){
 
         try{
-            addText(headerObject.getString("Title"),50,true,pageLayout);
-            addText("Course Director: " + headerObject.getString("Director"),20,true,pageLayout);
-            addText("Help information: " + headerObject.getString("HelpInfo"),20,true,pageLayout);
-            addText("Grading levels: " + headerObject.getString("GradingInfo"),20,true,pageLayout);
-            addText(headerObject.getString("OtherInfo"),20,true,pageLayout);
-            addText("__________________________________________",20,true,pageLayout);
+            addText(headerObject.getString("Title"),50,true,pageLayout,false);
+            addText("Course Director: " + headerObject.getString("Director"),20,true,pageLayout,false);
+            addText("Help information: " + headerObject.getString("HelpInfo"),20,true,pageLayout,false);
+            addText("Grading levels: " + headerObject.getString("GradingInfo"),20,true,pageLayout,false);
+            addText(headerObject.getString("OtherInfo"),20,true,pageLayout,false);
+            addText("__________________________________________",20,true,pageLayout,false);
 
 
 
@@ -639,6 +638,7 @@ public class TentaOnline extends ActionBarActivity implements AsyncResponse{
         highlighted = highlighter.highlight(languageToExtension(language), startCode);
         editCode.setText(Html.fromHtml(highlighted));
 
+
         editCode.setOnKeyListener(new View.OnKeyListener() {
 
             @Override
@@ -738,14 +738,19 @@ public class TentaOnline extends ActionBarActivity implements AsyncResponse{
     }
 
     /** Adds question to the mainLayout view */
-    public void addText(String question, int textSize, boolean centerHorizontal, LinearLayout pageLayout){
+    public void addText(String question, int textSize, boolean centerHorizontal, LinearLayout pageLayout, boolean htmlCoded){
 
         TextView questionView = new TextView(this);
         if(centerHorizontal)
             questionView.setGravity(Gravity.CENTER_HORIZONTAL);
 
         questionView.setTextColor(Color.BLACK);
-        questionView.setText(question);
+        if(htmlCoded){
+            questionView.setText(Html.fromHtml(question));
+        }
+        else{
+            questionView.setText(question);
+        }
         questionView.setTextSize(textSize);
         pageLayout.addView(questionView);
     }
@@ -814,14 +819,53 @@ public class TentaOnline extends ActionBarActivity implements AsyncResponse{
         addQuestionnumberText(("Question " + (currentQuestion+1) + " - image " + (currentDrawPage+1)),30);
         drawLayout.addView(questionnumberLayout);
 
+        //
+        //drawLayout.addView(drawButtons);
+
         drawLayout.addView(createDrawPage(canvasBitmap,c));
         LinearLayout drawpage = new LinearLayout(this);
         drawpage.addView(drawLayout);
 
         myTestLayout.removeAllViews();
         myTestLayout.addView(drawpage);
-    }
 
+        saveBitmap();
+        showPictureMark();
+
+    }
+/*
+    private void addDrawingButtons(){
+        //*
+        LinearLayout.LayoutParams drawParams = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT,LinearLayout.LayoutParams.WRAP_CONTENT);
+
+        drawButtons = new LinearLayout(this);
+        drawButtons.setOrientation(LinearLayout.HORIZONTAL);
+        drawButtons.setBackgroundColor(getResources().getColor(R.color.lightbrown));
+        drawButtons.setLayoutParams(drawParams);
+        Button bt = new Button(this);
+        bt.setText("Lines");
+        bt.setLayoutParams(new LinearLayout.LayoutParams(70,70));
+
+        bt.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View v) {
+
+                LinearLayout t = (LinearLayout) myTestLayout.getChildAt(0);
+                Log.d("test1","" + t);
+                LinearLayout tt = (LinearLayout) t.getChildAt(0);
+                Log.d("test2","" + tt);
+                Log.d("test22","" + tt.getChildAt(2));
+                SimpleDrawView ttt = (SimpleDrawView) t.getChildAt(2);
+                Log.d("test3","" + ttt);
+
+                ttt.setFreeDraw(false);
+
+            }
+        });
+
+        drawButtons.addView(bt);
+        //*
+    }
+*/
     private void saveBitmap(){
 
         int pageindex=(lastClickedButton.getId() - questionButtonId);

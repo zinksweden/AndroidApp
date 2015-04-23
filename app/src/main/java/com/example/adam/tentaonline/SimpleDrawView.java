@@ -108,7 +108,6 @@ public class SimpleDrawView extends View{
 
                 drawCanvas.drawPath(drawPath, drawPaint);
                 drawPath.reset();
-                //spara bitmapen till array?
                 break;
             default:
                 return false;

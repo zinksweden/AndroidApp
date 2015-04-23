@@ -89,14 +89,12 @@ public class AndroidGet extends AsyncTask<String,String,String> {
             BufferedReader reader = new BufferedReader(new InputStreamReader(is, "utf-8"), 8);
             sb = new StringBuilder();
             sb.append(reader.readLine() + "\n");
-
             String line = null;
             while ((line = reader.readLine()) != null) {
                 sb.append(line + "\n");
             }
             is.close();
             result = sb.toString();
-            Log.d("Exam", "TESTING2");
         } catch (Exception e) {
             Log.e("log_tag", "Error converting result " + e.toString());
         }
@@ -113,8 +111,6 @@ public class AndroidGet extends AsyncTask<String,String,String> {
                 delegate.codeFinish(result);
             }
             else {
-
-
                 delegate.processFinish(result);
             }
 
