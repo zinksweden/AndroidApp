@@ -7,9 +7,12 @@ import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Path;
 import android.util.AttributeSet;
+import android.util.Base64;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
+
+import java.io.ByteArrayOutputStream;
 
 /*
 * Soruce code from
@@ -18,10 +21,8 @@ import android.view.View;
 * Modified by Adam Larsson
 * */
 public class SimpleDrawView extends View{
-
-
     //drawing path
-    private Path drawPath;
+    private Path drawPath, previewDrawPath;
     //drawing and canvas paint
     private Paint drawPaint, canvasPaint;
     //initial color
@@ -32,7 +33,6 @@ public class SimpleDrawView extends View{
     private Bitmap canvasBitmap;
 
     private boolean freeDraw=true;
-
 
     public SimpleDrawView(Context context, AttributeSet attrs) {
         super(context, attrs);
@@ -56,14 +56,13 @@ public class SimpleDrawView extends View{
         freeDraw=fd;
     }
 
-
     public Bitmap getBit(){
         return canvasBitmap;
     }
 
-
     private void setupDrawing(){
         drawPath = new Path();
+        previewDrawPath= new Path();
         drawPaint = new Paint();
         drawPaint.setColor(paintColor);
         drawPaint.setAntiAlias(true);
@@ -72,7 +71,6 @@ public class SimpleDrawView extends View{
         drawPaint.setStrokeJoin(Paint.Join.ROUND);
         drawPaint.setStrokeCap(Paint.Cap.ROUND);
         canvasPaint = new Paint(Paint.DITHER_FLAG);
-//get drawing area setup for interaction
     }
 
     @Override
@@ -84,6 +82,17 @@ public class SimpleDrawView extends View{
     protected void onDraw(Canvas canvas) {
         canvas.drawBitmap(canvasBitmap, 0, 0, canvasPaint);
         canvas.drawPath(drawPath, drawPaint);
+    }
+
+    public String BitMapToString(Bitmap bitmap) {
+        String result="";
+        if(bitmap!=null){
+            ByteArrayOutputStream baos = new ByteArrayOutputStream();
+            bitmap.compress(Bitmap.CompressFormat.PNG, 10, baos);
+            byte[] b = baos.toByteArray();
+            result = Base64.encodeToString(b, Base64.DEFAULT);
+        }
+        return result;
     }
 
     @Override
@@ -105,7 +114,6 @@ public class SimpleDrawView extends View{
                 if(!freeDraw){
                     drawPath.lineTo(touchX, touchY);
                 }
-
                 drawCanvas.drawPath(drawPath, drawPaint);
                 drawPath.reset();
                 break;

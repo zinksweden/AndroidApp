@@ -15,9 +15,7 @@ import syntaxhighlight.Parser;
 * */
 public class PrettifyHighlighter {
     private static final Map<String, String> COLORS = buildColorsMap();
-
     private static final String FONT_PATTERN = "<font color=\"#%s\">%s</font>";
-
     private final Parser parser = new PrettifyParser();
 
     public String highlight(String fileExtension, String sourceCode) {
@@ -25,9 +23,14 @@ public class PrettifyHighlighter {
         List<ParseResult> results = parser.parse(fileExtension, sourceCode);
         for(ParseResult result : results){
             String type = result.getStyleKeys().get(0);
-            String content = sourceCode.substring(result.getOffset(), result.getOffset() + result.getLength());
-            highlighted.append(String.format(FONT_PATTERN, getColor(type), content.replace(" ","&nbsp;").replace("\n","<br>").replace("\t","&emsp;")   ));
+            String content = sourceCode.substring(result.getOffset(),
+                    result.getOffset() + result.getLength());
+            highlighted.append(String.format(FONT_PATTERN, getColor(type),
+                    content.replace(" ","&nbsp;").replace("\n","<br>").replace("\t","&emsp;")));
+                    //content.replaceAll(" ","%20").replaceAll("\n","%0D%0A")));
+
         }
+
         return highlighted.toString();
     }
 

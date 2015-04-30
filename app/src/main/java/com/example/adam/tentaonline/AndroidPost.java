@@ -30,33 +30,17 @@ import java.util.List;
  */
 public class AndroidPost extends AsyncTask<String,String,String> {
     public AsyncResponse delegate=null;
-
-
     protected String doInBackground(String... param) {
-
-
         InputStream is = null;
         try {
-            //ArrayList<NameValuePair> nameValuePairs = new ArrayList<NameValuePair>();
-
-            //Log.d("KURs",urls[0]);
-
-
-            //
-
             HttpParams params = new BasicHttpParams();
             HttpConnectionParams.setConnectionTimeout(params, 10000);
             HttpConnectionParams.setSoTimeout(params, 10000);
             HttpProtocolParams.setVersion(params, HttpVersion.HTTP_1_1);
             HttpProtocolParams.setContentCharset(params, HTTP.UTF_8);
             HttpProtocolParams.setUseExpectContinue(params, true);
-
             HttpClient httpclient = new DefaultHttpClient(params);
-
-            //Why to use 10.0.2.2
-            //HttpPost httppost = new HttpPost("http://83.183.12.45/" + param[0] + "?course_code=" + URLEncoder.encode(param[1], "UTF-8") + "&student_id=" + URLEncoder.encode(param[2], "UTF-8") + "&answer=" + URLEncoder.encode(param[3], "UTF-8"));  //ändra foldername
-
-            HttpPost httppost = new HttpPost("http://83.183.12.45/" + param[0]);  //ändra foldername
+            HttpPost httppost = new HttpPost("http://83.183.12.45/" + param[0]);
 
             List<NameValuePair> nameValuePairs = new ArrayList<NameValuePair>(3);
             nameValuePairs.add(new BasicNameValuePair("course_code",param[1]));
@@ -64,20 +48,18 @@ public class AndroidPost extends AsyncTask<String,String,String> {
             nameValuePairs.add(new BasicNameValuePair("answer", param[3]));
             httppost.setEntity(new UrlEncodedFormEntity(nameValuePairs,"UTF-8"));
 
-            //httppost.setEntity(new UrlEncodedFormEntity(nameValuePairs));
+            Log.d("test2","" + httppost.getEntity().getContent().toString());
+
             HttpResponse response = httpclient.execute(httppost);
             HttpEntity entity = response.getEntity();
             is = entity.getContent();
-
         } catch (Exception e) {
             Log.e("log_tag", "Error in http connection " + e.toString());
         }
-
         try {
             BufferedReader reader = new BufferedReader(new InputStreamReader(is, "utf-8"), 8);
             StringBuilder sb = new StringBuilder();
             sb.append(reader.readLine() + "\n");
-
             String line = null;
             while ((line = reader.readLine()) != null) {
                 sb.append(line + "\n");
@@ -88,13 +70,8 @@ public class AndroidPost extends AsyncTask<String,String,String> {
         } catch (Exception e) {
             Log.e("log_tag", "Error converting result " + e.toString());
         }
-
         return "";
     }
-
-
     @Override
-    protected void onPostExecute(String result) {
-
-    }
+    protected void onPostExecute(String result) {}
 }
