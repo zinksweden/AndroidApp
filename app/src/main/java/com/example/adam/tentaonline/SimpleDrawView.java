@@ -33,6 +33,10 @@ public class SimpleDrawView extends View{
     private Bitmap canvasBitmap;
 
     private boolean freeDraw=true;
+    private String shapeType;
+
+    private float startX,startY,endX,endY;
+
 
     public SimpleDrawView(Context context, AttributeSet attrs) {
         super(context, attrs);
@@ -52,9 +56,13 @@ public class SimpleDrawView extends View{
         //setupPaint();
     }
 
+    public void setStrokeWidth(int width){drawPaint.setStrokeWidth(width);}
+
     public void setFreeDraw(Boolean fd){
         freeDraw=fd;
     }
+
+    public void setDrawShape(String ds){shapeType=ds;}
 
     public Bitmap getBit(){
         return canvasBitmap;
@@ -66,7 +74,7 @@ public class SimpleDrawView extends View{
         drawPaint = new Paint();
         drawPaint.setColor(paintColor);
         drawPaint.setAntiAlias(true);
-        drawPaint.setStrokeWidth(20);
+        drawPaint.setStrokeWidth(3);
         drawPaint.setStyle(Paint.Style.STROKE);
         drawPaint.setStrokeJoin(Paint.Join.ROUND);
         drawPaint.setStrokeCap(Paint.Cap.ROUND);
@@ -81,7 +89,20 @@ public class SimpleDrawView extends View{
     @Override
     protected void onDraw(Canvas canvas) {
         canvas.drawBitmap(canvasBitmap, 0, 0, canvasPaint);
-        canvas.drawPath(drawPath, drawPaint);
+        //canvas.drawPath(drawPath, drawPaint);
+        if(freeDraw){
+            canvas.drawPath(drawPath, drawPaint);   //den som previewar
+        }
+        else{
+            if(shapeType.equals("line")){
+                canvas.drawLine(startX,startY,endX,endY,drawPaint); //den som previewar
+            }
+            else if(shapeType.equals("rectangle")){
+                 canvas.drawRect(startX,startY,endX,endY,drawPaint);
+            }
+
+        }
+
     }
 
     public String BitMapToString(Bitmap bitmap) {
@@ -102,20 +123,44 @@ public class SimpleDrawView extends View{
         // Checks for the event that occurs
         switch (event.getAction()) {
             case MotionEvent.ACTION_DOWN:
-                drawPath.moveTo(touchX, touchY);
+                if(freeDraw){
+                    drawPath.moveTo(touchX, touchY);
+                }
+                else{
+                    startX = event.getX();
+                    startY = event.getY();
+                    endX = event.getX();
+                    endY = event.getY();
+                }
+
                 break;
             case MotionEvent.ACTION_MOVE:
                 if(freeDraw){
                     drawPath.lineTo(touchX, touchY);
                 }
+                else{
+                    endX = event.getX();
+                    endY = event.getY();
+                }
+
 
                 break;
             case MotionEvent.ACTION_UP:
-                if(!freeDraw){
+                if(freeDraw){
                     drawPath.lineTo(touchX, touchY);
+                    drawCanvas.drawPath(drawPath, drawPaint); //den som sparar
+                    drawPath.reset();
                 }
-                drawCanvas.drawPath(drawPath, drawPaint);
-                drawPath.reset();
+                else{
+                    endX = event.getX();
+                    endY = event.getY();
+                    if(shapeType.equals("line")){
+                        drawCanvas.drawLine(startX,startY,endX,endY,drawPaint);
+                    }
+                    else if(shapeType.equals("rectangle")){
+                        drawCanvas.drawRect(startX,startY,endX,endY,drawPaint);
+                    }
+                }
                 break;
             default:
                 return false;

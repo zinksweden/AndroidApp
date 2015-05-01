@@ -43,6 +43,7 @@ public class AndroidGet extends AsyncTask<String,String,String> {
         String result = null;
         int x=0;
         try {
+            Log.d("steg1","kommer");
             HttpParams params = new BasicHttpParams();
             HttpConnectionParams.setConnectionTimeout(params, 10000);
             HttpConnectionParams.setSoTimeout(params, 10000);
@@ -68,9 +69,11 @@ public class AndroidGet extends AsyncTask<String,String,String> {
                 httpget = new HttpGet("http://83.183.12.45/" + param[0]+ "?course_code=" +
                         URLEncoder.encode(param[1], "UTF-8"));
             }
+            Log.d("steg2","kommer");
             HttpResponse response = httpclient.execute(httpget);
             HttpEntity entity = response.getEntity();
             is = entity.getContent();
+            Log.d("steg3","kommer");
         } catch (Exception e) {
             Log.e("log_tag", "Error in http connection " + e.toString());
         }
@@ -79,11 +82,13 @@ public class AndroidGet extends AsyncTask<String,String,String> {
             sb = new StringBuilder();
             sb.append(reader.readLine() + "\n");
             String line = null;
+            Log.d("steg4","kommer");
             while ((line = reader.readLine()) != null) {
                 sb.append(line + "\n");
             }
             is.close();
             result = sb.toString();
+            Log.d("steg5","kommer");
         } catch (Exception e) {
             Log.e("log_tag", "Error converting result " + e.toString());
         }
@@ -92,6 +97,7 @@ public class AndroidGet extends AsyncTask<String,String,String> {
 
     @Override
     protected void onPostExecute(String result) {
+        Log.d("steg6","kommer");
         try {
             if(isCode){
                 delegate.codeFinish(result);

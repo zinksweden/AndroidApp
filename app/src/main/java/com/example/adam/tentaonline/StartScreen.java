@@ -32,6 +32,7 @@ public class StartScreen extends ActionBarActivity implements AsyncResponse {
 
             @Override
             public void onClick(View arg0) {
+                Log.d("hit","hit");
                 examId = (EditText) findViewById(R.id.editText);
                 studentId = (EditText) findViewById(R.id.editText2);
             if (!examId.getText().toString().trim().equals("") &&
@@ -58,17 +59,28 @@ public class StartScreen extends ActionBarActivity implements AsyncResponse {
     private void loadExam(){
         final AndroidGet asyncGetExam = new AndroidGet();
         asyncGetExam.delegate = this;
-        asyncGetExam.execute("android/get/get.php", examId.getText().toString());
+        asyncGetExam.execute("android/get/exist.php", examId.getText().toString());
     }
 
     @Override
     public void processFinish(String output) {
+        Log.d("kommer","" + output);
         if(!output.trim().equals("null")){
             final Context context = this;
+            Log.d("test1","kommer");
             Intent intent = new Intent(context, TentaOnline.class);
             intent.putExtra("examId",examId.getText().toString());
             intent.putExtra("studentId",studentId.getText().toString());
-            intent.putExtra("exam",output);
+            //intent.putExtra("exam",output);
+            Log.d("test2","kommer");
+
+            if(getIntent().getBooleanExtra("ex", false)){
+                Log.e("Hi", "It was false");
+            } else {
+                Log.e("Hi", "It was true");
+            }
+
+
             startActivity(intent);
         }
         else{
