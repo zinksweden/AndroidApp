@@ -6,6 +6,8 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Path;
+import android.graphics.PorterDuff;
+import android.graphics.PorterDuffXfermode;
 import android.util.AttributeSet;
 import android.util.Base64;
 import android.util.Log;
@@ -32,7 +34,7 @@ public class SimpleDrawView extends View{
     //canvas bitmap
     private Bitmap canvasBitmap;
 
-    private boolean freeDraw=true;
+    private boolean freeDraw=true,erase=false;
     private String shapeType;
 
     private float startX,startY,endX,endY;
@@ -53,8 +55,26 @@ public class SimpleDrawView extends View{
         setFocusableInTouchMode(true);
         drawCanvas=c;
         canvasBitmap=b;
+        setLayerType(View.LAYER_TYPE_SOFTWARE, canvasPaint);
         //setupPaint();
     }
+
+    public void setErase(boolean isErase){
+
+        erase=isErase;
+
+        if(erase)
+
+            drawPaint.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.CLEAR));
+
+//this.setColor("#FFFFFFFF");
+
+        else
+            drawPaint.setXfermode(null);
+
+    }
+
+    public void setPaintColor(int color){drawPaint.setColor(color);}
 
     public void setStrokeWidth(int width){drawPaint.setStrokeWidth(width);}
 
@@ -63,6 +83,8 @@ public class SimpleDrawView extends View{
     }
 
     public void setDrawShape(String ds){shapeType=ds;}
+
+    public boolean getErase(){return erase;}
 
     public Bitmap getBit(){
         return canvasBitmap;
@@ -88,6 +110,7 @@ public class SimpleDrawView extends View{
 
     @Override
     protected void onDraw(Canvas canvas) {
+
         canvas.drawBitmap(canvasBitmap, 0, 0, canvasPaint);
         //canvas.drawPath(drawPath, drawPaint);
         if(freeDraw){

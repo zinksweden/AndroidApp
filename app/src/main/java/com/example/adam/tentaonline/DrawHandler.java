@@ -1,6 +1,8 @@
 package com.example.adam.tentaonline;
 
 import android.animation.ObjectAnimator;
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
@@ -9,6 +11,9 @@ import android.support.v7.app.ActionBarActivity;
 import android.util.Base64;
 import android.util.Log;
 import android.util.SparseArray;
+import android.view.Gravity;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
@@ -20,6 +25,8 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.Spinner;
+import android.widget.TextView;
+
 
 import java.io.ByteArrayOutputStream;
 import java.util.ArrayList;
@@ -29,9 +36,8 @@ import java.util.ArrayList;
  */
 public class DrawHandler {
 
-
     Bitmap canvasBitmap;
-    LinearLayout drawButtons;
+    RelativeLayout drawButtons;
     Canvas c;
     SimpleDrawView dw;
     SparseArray<ArrayList<String>> mapBitsString = new SparseArray<>();
@@ -45,6 +51,7 @@ public class DrawHandler {
     ComponentCreator cc;
     HorizontalScrollView scroll;
     LinearLayout foundationLayout;
+    MenuItem pictureMark;
 
     public DrawHandler(ActionBarActivity aba, ComponentCreator cc, HorizontalScrollView scroll, LinearLayout foundationLayout){
         this.aba=aba;
@@ -87,6 +94,7 @@ public class DrawHandler {
         foundationLayout.addView(drawpage);
 
         saveBitmap(currentQuestion);
+        resetDrawButtons();
     }
 
     public SimpleDrawView createDrawPage(Bitmap b, Canvas c){
@@ -99,7 +107,7 @@ public class DrawHandler {
     }
 
     public void saveBitmap(int currentQuestion){
-        if(dw!=null){
+        if(dw!=null && drawPageButtons.get(currentQuestion).getChildCount()>0){
 
             LinearLayout x = (LinearLayout) foundationLayout.getChildAt(0);
             LinearLayout xx = (LinearLayout) x.getChildAt(0);
@@ -119,7 +127,23 @@ public class DrawHandler {
                 bpString.add(currentDrawPage,BitMapToString(xxx.getBit() ));
             }
             mapBitsString.put(currentQuestion, bpString);
+            showPictureMark(currentQuestion);
         }
+    }
+
+    public void showPictureMark(int currentQuestion){
+        MenuItem pictureIndicator = pictureMark;
+        if(getMapBitsString().indexOfKey(currentQuestion)>=0 && getMapBitsString().get(currentQuestion).size()>0){
+            pictureIndicator.setVisible(true);
+            pictureIndicator.setTitle("x " + getMapBitsString().get(currentQuestion).size());
+        }
+        else{
+            pictureIndicator.setVisible(false);
+        }
+    }
+
+    public void setMenuItem(MenuItem pictureMark){
+        this.pictureMark=pictureMark;
     }
 
     public void addDrawPageButton(final int currentQuestion, boolean first, final Button nextButton, final Button prevButton){
@@ -129,7 +153,7 @@ public class DrawHandler {
                 inc=drawPageButtons.get(currentQuestion).getChildCount();
             }
 
-            final Button b = cc.createButton("Image " + (inc + 1),R.color.white,R.drawable.button_shape,aba);
+            final Button b = cc.createButton(" Image " + (inc + 1) + " ",R.color.white,R.drawable.button_shape,aba);
             b.setId(drawPageButtonId + inc );
 
             if(first){
@@ -151,9 +175,11 @@ public class DrawHandler {
                     b.setBackgroundResource(R.drawable.button_shape_clicked);
                     selectedDrawBtn = b;
                     DrawAnimatedQuestionScrollView();
-                    enableDrawButton(currentQuestion,nextButton,prevButton);
+                    enableDrawButton(currentQuestion, nextButton, prevButton);
                 }
             });
+
+
 
             LinearLayout butt;
             if(drawPageButtons.indexOfKey(currentQuestion)>=0){
@@ -196,15 +222,26 @@ public class DrawHandler {
         mapBitsString.put(currentQuestion,bpString);
     }
 
-    public LinearLayout makeStartDrawingButtons(final int currentQuestion, final Button nextButton, final Button prevButton){
+    public void makeStartDrawingButtons(final int currentQuestion, final Button nextButton, final Button prevButton, boolean fromQuestion){
+        if(fromQuestion){
+            drawPageButtons.put(currentQuestion, new LinearLayout(aba));
+        }
 
-        drawPageButtons.put(currentQuestion, new LinearLayout(aba));
+        LinearLayout.LayoutParams drawParams = new LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT,90);
+        LinearLayout.LayoutParams btnParams = new LinearLayout.LayoutParams(70,70);
+        btnParams.gravity= Gravity.CENTER_VERTICAL;
 
-        LinearLayout nn = new LinearLayout(aba);
-        nn.setOrientation(LinearLayout.HORIZONTAL);
-        nn.setBackgroundColor(aba.getResources().getColor(R.color.lightlightgrey));
-        Button bt = new Button(aba);
-        bt.setText("+");
+        LinearLayout pageLayout = new LinearLayout(aba);
+        pageLayout.setOrientation(LinearLayout.VERTICAL);
+
+        LinearLayout drawButtonLayout = new LinearLayout(aba);
+        drawButtonLayout.setOrientation(LinearLayout.HORIZONTAL);
+        drawButtonLayout.setLayoutParams(drawParams);
+        drawButtonLayout.setBackgroundColor(aba.getResources().getColor(R.color.lightlightgrey));
+
+        Button bt = cc.createButton("",R.color.black,R.drawable.new_img,aba);
+        bt.setLayoutParams(btnParams);
 
         bt.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
@@ -213,93 +250,168 @@ public class DrawHandler {
                 //showpicturemark();
             }
         });
-        nn.addView(bt);
-        return nn;
+        questionNumberLayout = cc.createQuestionTitle(("Question " + (currentQuestion + 1)
+                + " - No image") ,30,aba);
+
+        TextView txt = new TextView(aba);
+        txt.setTextSize(20);
+        txt.setText("No image created, maybe you want to make one");
+
+        drawButtonLayout.addView(bt);
+        pageLayout.addView(questionNumberLayout);
+        pageLayout.addView(drawButtonLayout);
+        pageLayout.addView(txt);
+        foundationLayout.addView(pageLayout);
     }
 
     public void addDrawingButtons(final int currentQuestion, final Button nextButton, final Button prevButton){
-        LinearLayout.LayoutParams drawParams = new LinearLayout.LayoutParams(
-                LinearLayout.LayoutParams.MATCH_PARENT,LinearLayout.LayoutParams.WRAP_CONTENT);
-        LinearLayout.LayoutParams btnParams = new LinearLayout.LayoutParams(70,70);
 
-        drawButtons = new LinearLayout(aba);
-        drawButtons.setOrientation(LinearLayout.HORIZONTAL);
+        RelativeLayout.LayoutParams drawParams = new RelativeLayout.LayoutParams(
+                RelativeLayout.LayoutParams.MATCH_PARENT,90);
+        LinearLayout.LayoutParams btnParams = new LinearLayout.LayoutParams(70,70);
+        btnParams.gravity= Gravity.CENTER_VERTICAL;
+        LinearLayout.LayoutParams dropdownParams = new LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT);
+        dropdownParams.gravity = Gravity.CENTER_VERTICAL;
+
+        RelativeLayout.LayoutParams lleft = new RelativeLayout.LayoutParams(
+                RelativeLayout.LayoutParams.WRAP_CONTENT,90);
+        lleft.addRule(RelativeLayout.ALIGN_PARENT_LEFT);
+        LinearLayout left = new LinearLayout(aba);
+        left.setLayoutParams(lleft);
+
+        RelativeLayout.LayoutParams rright = new RelativeLayout.LayoutParams(
+                RelativeLayout.LayoutParams.WRAP_CONTENT,90);
+        rright.addRule(RelativeLayout.ALIGN_PARENT_RIGHT);
+        LinearLayout right = new LinearLayout(aba);
+        right.setLayoutParams(rright);
+
+        drawButtons = new RelativeLayout(aba);
         drawButtons.setBackgroundColor(aba.getResources().getColor(R.color.lightlightgrey));
         drawButtons.setLayoutParams(drawParams);
-        Button btAdd = new Button(aba);
+
+        Button btAdd = cc.createButton("",R.color.black,R.drawable.new_img,aba);
         btAdd.setLayoutParams(btnParams);
-        btAdd.setText("+");
 
         btAdd.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
                 addDrawPageButton(currentQuestion, false, nextButton, prevButton);
                 enableDrawButton(currentQuestion, nextButton, prevButton);
-                //showpicturemark();
+                showPictureMark(currentQuestion);
             }
         });
-        drawButtons.addView(btAdd);
 
-        Button btRemove = new Button(aba);
+        Button btRemove = cc.createButton("",R.color.black,R.drawable.bin,aba);
         btRemove.setLayoutParams(btnParams);
-        btRemove.setText("-");
 
         btRemove.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
-                removeDrawPage(currentQuestion, nextButton, prevButton);
-                //enableDrawButton(currentQuestion, nextButton, prevButton);
-                //showpicturemark();
+                AlertDialog.Builder builder = new AlertDialog.Builder(aba);
+                builder.setTitle("Remove image");
+                builder.setMessage("Are you sure you want to remove this image?");
+                builder.setNegativeButton("NO", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        // Do nothing
+                        dialog.dismiss();
+                    }
+                });
+                builder.setPositiveButton("YES", new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int which) {
+                        // Do nothing but close the dialog
+                        removeDrawPage(currentQuestion, nextButton, prevButton);
+                        showPictureMark(currentQuestion);
+                        dialog.dismiss();
+                    }
+                });
+                AlertDialog alert = builder.create();
+                alert.show();
             }
         });
-        drawButtons.addView(btRemove);
+
+        final Button btEraser = cc.createButton("",R.color.black,R.drawable.eraser,aba);
+        btEraser.setLayoutParams(btnParams);
+        btEraser.setId(100+0);
+
+        btEraser.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View v) {
+                if (dw.getErase() == true) {
+                    btEraser.setBackgroundResource(R.drawable.eraser);
+                    dw.setErase(false);
+                } else {
+                    btEraser.setBackgroundResource(R.drawable.eraser_clicked);
+                    dw.setErase(true);
+                }
+            }
+        });
+
+        Integer[] brushitems = new Integer[]{R.drawable.thin_line, R.drawable.medium_line,R.drawable.thick_line};
+        Spinner brushSizeDropdown = createDropdown2(brushitems,1);
+        brushSizeDropdown.setLayoutParams(dropdownParams);
+        brushSizeDropdown.setOnItemSelectedListener(createOnSelectItem());
+
+        Integer[] shapeItems = new Integer[]{R.drawable.free_draw,R.drawable.line,R.drawable.rectangle};
+        Spinner shapeDropdown = createDropdown2(shapeItems,2);
+        shapeDropdown.setLayoutParams(dropdownParams);
+        shapeDropdown.setOnItemSelectedListener(createOnSelectItem());
 
 
-        Spinner brushSizeDropdown = new Spinner(aba);
-        String[] brushitems = new String[]{"1", "2", "3"};
-        ArrayAdapter<String> brushAdapter = new ArrayAdapter<>(aba, android.R.layout.simple_spinner_item, brushitems);
-        brushSizeDropdown.setAdapter(brushAdapter);
-        drawButtons.addView(brushSizeDropdown);
+        Integer[] colorItems = new Integer[]{R.drawable.color_black,R.drawable.color_red,R.drawable.color_blue};
+        Spinner colorDropdown = createDropdown2(colorItems,3);
+        colorDropdown.setLayoutParams(dropdownParams);
+        colorDropdown.setOnItemSelectedListener(createOnSelectItem());
 
-        brushSizeDropdown.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+
+        left.addView(btAdd);
+        left.addView(btRemove);
+        right.addView(btEraser);
+        right.addView(shapeDropdown);
+        right.addView(brushSizeDropdown);
+        right.addView(colorDropdown);
+        drawButtons.addView(left);
+        drawButtons.addView(right);
+    }
+
+    public Spinner createDropdown2(Integer[] items,int id){
+        Spinner spin = new Spinner(aba);
+        spin.setId(2000+id);
+        //Integer[] itemss = new Integer[]{R.drawable.thin_line, R.drawable.medium_line,R.drawable.thick_line};
+        spin.setAdapter(new CustomSpinnerAdapter(aba,items));
+        return spin;
+    }
+
+    public Spinner createDropdown(String[] items,int id){
+        Spinner dropdown = new Spinner(aba);
+        dropdown.setId(2000+id);
+        ArrayAdapter<String> adapter = new ArrayAdapter<>(aba, android.R.layout.simple_spinner_item, items);
+        dropdown.setAdapter(adapter);
+        return dropdown;
+    }
+
+    public AdapterView.OnItemSelectedListener createOnSelectItem(){
+
+         AdapterView.OnItemSelectedListener listener = new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view,
                                        int position, long id) {
 
-                brushSizeDropdownChange(position);
+                switch (parent.getId()){
+                    case 2000+1:
+                        brushSizeDropdownChange(position);
+                        break;
+                    case 2000+2:
+                        ShapeDropdownChange(position);
+                        break;
+                    case 2000+3:
+                        ColorDropdownChange(position);
+                        break;
+                }
             }
-
             @Override
-            public void onNothingSelected(AdapterView<?> parent) {
-
-            }
-        });
-
-        Spinner ShapeDropdown = new Spinner(aba);
-        String[] shapeItems = new String[]{"free draw", "line", "rectangle"};
-        ArrayAdapter<String> shapeAdapter = new ArrayAdapter<String>(aba, android.R.layout.simple_spinner_item, shapeItems);
-        ShapeDropdown.setAdapter(shapeAdapter);
-        drawButtons.addView(ShapeDropdown);
-
-        ShapeDropdown.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-            @Override
-            public void onItemSelected(AdapterView<?> parent, View view,
-                                       int position, long id) {
-
-                ShapeDropdownChange(position);
-            }
-
-            @Override
-            public void onNothingSelected(AdapterView<?> parent) {
-
-            }
-        });
-
-
+            public void onNothingSelected(AdapterView<?> parent) {}
+        };
+        return listener;
     }
-
-    public  LinearLayout getDrawbuttons(){
-        return drawButtons;
-    }
-
 
     public void brushSizeDropdownChange(int position) {
         LinearLayout t = (LinearLayout) foundationLayout.getChildAt(0);
@@ -338,41 +450,63 @@ public class DrawHandler {
 
     }
 
+    public void ColorDropdownChange(int position){
+        LinearLayout t = (LinearLayout) foundationLayout.getChildAt(0);
+        LinearLayout tt = (LinearLayout) t.getChildAt(0);
+        SimpleDrawView ttt = (SimpleDrawView) tt.getChildAt(2);
+        switch (position) {
+            case 0:
+                ttt.setPaintColor(Color.BLACK);
+                break;
+            case 1:
+                ttt.setPaintColor(Color.RED);
+                break;
+            case 2:
+                ttt.setPaintColor(Color.BLUE);
+                break;
+        }
+    }
+
+    public void resetDrawButtons(){
+
+        for(int i=0;i<drawButtons.getChildCount();i++){
+           if( drawButtons.getChildAt(i) instanceof Spinner){
+               Spinner spin = (Spinner) drawButtons.getChildAt(i);
+               spin.setSelection(0);
+           }
+        }
+        Button btn = (Button) drawButtons.findViewById(100+0);
+        btn.setBackgroundResource(R.drawable.eraser);
+
+
+
+    }
+
     public void removeDrawPage(final int currentQuestion, final Button nextButton, final Button prevButton){
 
-        //drawPageButtons.get(currentQuestion).getChildAt(0);
         drawPageButtons.get(currentQuestion).removeViewAt(currentDrawPage);
 
         mapBitsString.get(currentQuestion).remove(currentDrawPage);
 
-        for(int i=currentDrawPage;i<drawPageButtons.get(currentQuestion).getChildCount();i++){
-            Button btn = (Button) drawPageButtons.get(currentQuestion).getChildAt(i);
-            btn.setId(drawPageButtonId + i);
-            btn.setText("Image " + (i + 1));
-        }
-
-        if(currentDrawPage>0){
-            currentDrawPage--;
-            getDrawView(currentQuestion);
+        if(drawPageButtons.get(currentQuestion).getChildCount()<=0){
+            foundationLayout.removeAllViews();
+            makeStartDrawingButtons(currentQuestion, nextButton, prevButton,false);
         }
         else{
-            if(drawPageButtons.indexOfKey(currentQuestion)<0){
-                foundationLayout.removeAllViews();
-                foundationLayout.addView(makeStartDrawingButtons(currentQuestion,nextButton,prevButton));
+            if(currentDrawPage>0){
+                currentDrawPage--;
             }
-            else{
-                currentDrawPage++;
-                getDrawView(currentQuestion);
-            }
+            getDrawView(currentQuestion);
 
+            for(int i=currentDrawPage;i<drawPageButtons.get(currentQuestion).getChildCount();i++){
+                Button btn = (Button) drawPageButtons.get(currentQuestion).getChildAt(i);
+                btn.setId(drawPageButtonId + i);
+                btn.setText(" Image " + (i + 1) + " ");
+            }
+            Button bt = (Button) drawPageButtons.get(currentQuestion).getChildAt(currentDrawPage);
+            bt.setBackgroundResource(R.drawable.button_shape_clicked);
+            selectedDrawBtn = bt;
         }
-
-
-        //getDrawView(currentQuestion);
-
-
-
-        //makeStartDrawingButtons(currentQuestion,nextButton,prevButton);
     }
 
     public void unselectDrawButton(){
@@ -411,7 +545,7 @@ public class DrawHandler {
         b.setBackgroundResource(R.drawable.button_shape_clicked);
         selectedDrawBtn = b;
 
-        enableDrawButton(currentQuestion,nextButton,prevButton);
+        enableDrawButton(currentQuestion, nextButton, prevButton);
         DrawAnimatedQuestionScrollView();
     }
 

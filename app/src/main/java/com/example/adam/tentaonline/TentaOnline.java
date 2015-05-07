@@ -134,6 +134,7 @@ public class TentaOnline extends ActionBarActivity implements AsyncResponse{
     private void nextButtonOnClick(){
         nextButton.setOnClickListener(new View.OnClickListener() {
              public void onClick(View v) {
+                 Log.d("FOR","FOR");
               if(currentlyDrawView){
                   dh.drawNextButtonOnClick(currentQuestion,nextButton,prevButton);
               }
@@ -152,15 +153,17 @@ public class TentaOnline extends ActionBarActivity implements AsyncResponse{
                   animatedQuestionScrollView();
                   enableNavigationButtons();
 
-                  showPictureMark();
+                  dh.showPictureMark(currentQuestion);
               }
             }
         });
     }
 
     private void prevButtonOnClick(){
+        Log.d("TTT","TTT");
         prevButton.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
+                Log.d("TDST","SADF");
               if(currentlyDrawView){
                   dh.drawPrevButtonOnClick(currentQuestion,nextButton,prevButton);
               }
@@ -187,7 +190,7 @@ public class TentaOnline extends ActionBarActivity implements AsyncResponse{
 
                   enableNavigationButtons();
 
-                  showPictureMark();
+                  dh.showPictureMark(currentQuestion);
               }
             }
         });
@@ -240,7 +243,7 @@ public class TentaOnline extends ActionBarActivity implements AsyncResponse{
                     animatedQuestionScrollView();
                     enableNavigationButtons();
 
-                    showPictureMark();
+                    dh.showPictureMark(currentQuestion);
                     }
                 });
 
@@ -273,6 +276,7 @@ public class TentaOnline extends ActionBarActivity implements AsyncResponse{
     private void createQuestion(LinearLayout pageLayout, int i, JSONObject questionObject){
         try{
             createQuestionTitle(("Question " + (i + 1)), 30);
+            //Log.d("Question is:   ", "" + questionObject.getString("Question"));
             addText(questionObject.getString("Question"), 25, false, pageLayout,true);
 
             if (questionObject.getString("Type").equals("radio")) {
@@ -360,7 +364,7 @@ public class TentaOnline extends ActionBarActivity implements AsyncResponse{
             animatedQuestionScrollView();
             currentQuestion=-1;
             enableNavigationButtons();
-            showPictureMark();
+            dh.showPictureMark(currentQuestion);
             }
         });
     }
@@ -487,6 +491,9 @@ public class TentaOnline extends ActionBarActivity implements AsyncResponse{
                     editCode.getText().replace(Math.min(start, end), Math.max(start, end),
                             "\t", 0, "\t".length());
                     return true;
+                }
+                else{
+                    Log.d("Testing keycode  ","" +keyCode);
                 }
                 return false;
             }
@@ -617,7 +624,7 @@ public class TentaOnline extends ActionBarActivity implements AsyncResponse{
         pageLayout.addView(questionView);
     }
 
-    private void showPictureMark(){
+    /*private void showPictureMark(){
         MenuItem pictureIndicator = menu.findItem(R.id.pictureIndicator);
         if(dh.getMapBitsString().indexOfKey(currentQuestion)>=0){
             pictureIndicator.setVisible(true);
@@ -626,7 +633,7 @@ public class TentaOnline extends ActionBarActivity implements AsyncResponse{
         else{
             pictureIndicator.setVisible(false);
         }
-    }
+    }*/
 
     /** Creates the dropdown menu with post exam button etc */
     @Override
@@ -634,6 +641,7 @@ public class TentaOnline extends ActionBarActivity implements AsyncResponse{
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.menu_tenta_online, menu);
         this.menu=menu;
+        dh.setMenuItem(menu.findItem(R.id.pictureIndicator));
         return true;
     }
 
@@ -655,7 +663,7 @@ public class TentaOnline extends ActionBarActivity implements AsyncResponse{
                         (selectedBtn.getId() - questionButtonId)));
                 currentlyDrawView=false;
                 enableNavigationButtons();
-                showPictureMark();
+                dh.showPictureMark(currentQuestion);
             }
             else{
                 foundationLayout.removeAllViews();
@@ -665,12 +673,8 @@ public class TentaOnline extends ActionBarActivity implements AsyncResponse{
                 dh.addDrawingButtons(currentQuestion,nextButton,prevButton);
                 dh.setDrawPage(0);
 
-                if(dh.getDrawPageButtons().indexOfKey(currentQuestion)<0){
-                    //dh.addDrawPageButton(currentQuestion,true,nextButton,prevButton);
-                    TextView texttest = new TextView(this);
-                    texttest.setText("Finns inga ritsidor, skapa en");
-                    foundationLayout.addView(dh.makeStartDrawingButtons(currentQuestion,nextButton,prevButton));
-                    foundationLayout.addView(texttest);
+                if(dh.getDrawPageButtons().indexOfKey(currentQuestion)<0 || dh.getDrawPageButtons().get(currentQuestion).getChildCount()<=0 ){
+                    dh.makeStartDrawingButtons(currentQuestion,nextButton,prevButton,true);
                     pageButtonLayout.addView(dh.getDrawPageButtons().get(
                             (currentQuestion)));
                 }
@@ -681,17 +685,8 @@ public class TentaOnline extends ActionBarActivity implements AsyncResponse{
                             (currentQuestion)));
 
                 }
-
-
-               // pageButtonLayout.addView(dh.getDrawPageButtons().get(
-               //         (currentQuestion)));
-                //dh.enableDrawButton(currentQuestion,nextButton,prevButton);
-                //dh.getDrawView(currentQuestion);
-
-
-
                 currentlyDrawView=true;
-                showPictureMark();
+                dh.showPictureMark(currentQuestion);
             }
         }
         // Checks if submit exam was clicked
