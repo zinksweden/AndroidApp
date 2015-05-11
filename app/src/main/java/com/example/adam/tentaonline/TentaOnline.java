@@ -104,6 +104,7 @@ public class TentaOnline extends ActionBarActivity implements AsyncResponse{
 
     }
 
+
     /** Gets called when the AndroidGet.java finish executing*/
     public void processFinish(String output){
         createExam(output);
@@ -170,7 +171,7 @@ public class TentaOnline extends ActionBarActivity implements AsyncResponse{
               else{
                   foundationLayout.removeAllViews();
                   Button currButton;
-                  Log.d("curr ", "" + currentQuestion);
+                  Log.d("currquestpr ", "" + currentQuestion);
                   if(currentQuestion==0){
                       foundationLayout.addView(pageLayoutHeader);
                       currentQuestion--;
@@ -194,6 +195,7 @@ public class TentaOnline extends ActionBarActivity implements AsyncResponse{
               }
             }
         });
+        Log.d("skapat","ss");
     }
 
     private void animatedQuestionScrollView(){
@@ -318,10 +320,13 @@ public class TentaOnline extends ActionBarActivity implements AsyncResponse{
 
     /* Adds the prev button if we are not on the first page */
     public void enableNavigateBackward(){
+        Log.d("curr",""+currentQuestion);
         if(currentQuestion>=0){
+            Log.d("enaling","yesweare");
             prevButton.setEnabled(true);
         }
         else{
+            Log.d("disable","nnn");
             prevButton.setEnabled(false);
         }
     }
