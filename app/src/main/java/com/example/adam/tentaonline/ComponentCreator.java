@@ -29,14 +29,14 @@ public class ComponentCreator {
         return button;
     }
 
-    public EditText createEditTextBox(int questionId ,float weight, int id, int height, ActionBarActivity aba){
+    public EditText createEditTextBox(int questionId ,int id, int height, ActionBarActivity aba){
         final EditText codeBox = new EditText(aba);
         codeBox.setInputType(InputType.TYPE_TEXT_FLAG_NO_SUGGESTIONS |
                 InputType.TYPE_TEXT_FLAG_MULTI_LINE);
         codeBox.setSingleLine(false);
         codeBox.setGravity(Gravity.TOP | Gravity.LEFT);
         codeBox.setLayoutParams(new LinearLayout.LayoutParams(
-                LinearLayout.LayoutParams.MATCH_PARENT, height, weight));
+                LinearLayout.LayoutParams.MATCH_PARENT, height));
         codeBox.setId(id + questionId);
         codeBox.setBackgroundResource(R.drawable.back_border);
         return codeBox;

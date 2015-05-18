@@ -7,21 +7,21 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Color;
+import android.graphics.Typeface;
 import android.support.v7.app.ActionBarActivity;
+import android.text.Html;
 import android.util.Base64;
 import android.util.Log;
 import android.util.SparseArray;
 import android.view.Gravity;
-import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.HorizontalScrollView;
-import android.widget.ImageButton;
-import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.Spinner;
@@ -30,6 +30,7 @@ import android.widget.TextView;
 
 import java.io.ByteArrayOutputStream;
 import java.util.ArrayList;
+import java.util.FormatFlagsConversionMismatchException;
 
 /**
  * Created by Adam on 2015-04-27.
@@ -65,7 +66,6 @@ public class DrawHandler {
         if(mapBitsString.indexOfKey(currentQuestion)>=0  &&
                 mapBitsString.get(currentQuestion).size()>currentDrawPage){
             canvasBitmap=StringToBitMap(mapBitsString.get(currentQuestion).get(currentDrawPage));
-            Log.d("kom in","yes");
         }
         else{
             canvasBitmap = Bitmap.createBitmap(800, 905, Bitmap.Config.ARGB_8888);
@@ -77,7 +77,6 @@ public class DrawHandler {
 
         questionNumberLayout = cc.createQuestionTitle(("Question " + (currentQuestion + 1)
                 + " - image " + (currentDrawPage + 1)) ,30,aba);
-
 
         drawLayout.addView(questionNumberLayout);
 
@@ -98,7 +97,6 @@ public class DrawHandler {
     }
 
     public SimpleDrawView createDrawPage(Bitmap b, Canvas c){
-       // Log.d("skapandef ", "" + BitMapToString(b));
         dw=new SimpleDrawView(aba,b,c);
         RelativeLayout.LayoutParams kte = new RelativeLayout.LayoutParams(
                 RelativeLayout.LayoutParams.MATCH_PARENT,RelativeLayout.LayoutParams.MATCH_PARENT);
@@ -335,7 +333,7 @@ public class DrawHandler {
 
         btEraser.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
-                if (dw.getErase() == true) {
+                if (dw.getErase()) {
                     btEraser.setBackgroundResource(R.drawable.eraser);
                     dw.setErase(false);
                 } else {
@@ -345,47 +343,53 @@ public class DrawHandler {
             }
         });
 
+        final Button btText = cc.createButton("",R.color.black,R.drawable.draw_text,aba);
+        btText.setLayoutParams(btnParams);
+
+        btText.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View v) {
+                if(dw.getTextMode()){
+                    dw.setTextMode(false);
+                }
+                else{
+                    textToDraw();
+                }
+            }
+        });
+
         Integer[] brushitems = new Integer[]{R.drawable.thin_line, R.drawable.medium_line,R.drawable.thick_line};
-        Spinner brushSizeDropdown = createDropdown2(brushitems,1);
+        Spinner brushSizeDropdown = createDropdown(brushitems, 1);
         brushSizeDropdown.setLayoutParams(dropdownParams);
         brushSizeDropdown.setOnItemSelectedListener(createOnSelectItem());
 
         Integer[] shapeItems = new Integer[]{R.drawable.free_draw,R.drawable.line,R.drawable.rectangle};
-        Spinner shapeDropdown = createDropdown2(shapeItems,2);
+        Spinner shapeDropdown = createDropdown(shapeItems, 2);
         shapeDropdown.setLayoutParams(dropdownParams);
         shapeDropdown.setOnItemSelectedListener(createOnSelectItem());
 
-
         Integer[] colorItems = new Integer[]{R.drawable.color_black,R.drawable.color_red,R.drawable.color_blue};
-        Spinner colorDropdown = createDropdown2(colorItems,3);
+        Spinner colorDropdown = createDropdown(colorItems, 3);
         colorDropdown.setLayoutParams(dropdownParams);
         colorDropdown.setOnItemSelectedListener(createOnSelectItem());
 
-
         left.addView(btAdd);
         left.addView(btRemove);
-        right.addView(btEraser);
+
         right.addView(shapeDropdown);
+        right.addView(btEraser);
         right.addView(brushSizeDropdown);
         right.addView(colorDropdown);
+        right.addView(btText);
+
         drawButtons.addView(left);
         drawButtons.addView(right);
     }
 
-    public Spinner createDropdown2(Integer[] items,int id){
+    public Spinner createDropdown(Integer[] items, int id){
         Spinner spin = new Spinner(aba);
         spin.setId(2000+id);
-        //Integer[] itemss = new Integer[]{R.drawable.thin_line, R.drawable.medium_line,R.drawable.thick_line};
         spin.setAdapter(new CustomSpinnerAdapter(aba,items));
         return spin;
-    }
-
-    public Spinner createDropdown(String[] items,int id){
-        Spinner dropdown = new Spinner(aba);
-        dropdown.setId(2000+id);
-        ArrayAdapter<String> adapter = new ArrayAdapter<>(aba, android.R.layout.simple_spinner_item, items);
-        dropdown.setAdapter(adapter);
-        return dropdown;
     }
 
     public AdapterView.OnItemSelectedListener createOnSelectItem(){
@@ -447,7 +451,6 @@ public class DrawHandler {
                 ttt.setDrawShape("rectangle");
                 break;
         }
-
     }
 
     public void ColorDropdownChange(int position){
@@ -477,9 +480,6 @@ public class DrawHandler {
         }
         Button btn = (Button) drawButtons.findViewById(100+0);
         btn.setBackgroundResource(R.drawable.eraser);
-
-
-
     }
 
     public void removeDrawPage(final int currentQuestion, final Button nextButton, final Button prevButton){
@@ -547,6 +547,52 @@ public class DrawHandler {
 
         enableDrawButton(currentQuestion, nextButton, prevButton);
         DrawAnimatedQuestionScrollView();
+    }
+
+    String text2add;
+    public void textToDraw(){
+        AlertDialog.Builder alert = new AlertDialog.Builder(aba);
+        LinearLayout ll = new LinearLayout(aba);
+        ll.setOrientation(LinearLayout.VERTICAL);
+        final TextView text = new TextView(aba);
+        text.setText("Ange texten");
+        final EditText texten = new EditText(aba);
+                //cc.createEditTextBox(1,0,8000,60,aba);
+        //final EditText et = new EditText(aba);
+        final TextView texts = new TextView(aba);
+        texts.setText("Ange storlek");
+        final Spinner textSize = new Spinner(aba);
+        String[] textSizeItems = new String[]{"20","30","40"};
+        ArrayAdapter<String> dataAdapter = new ArrayAdapter<String>
+                (aba, android.R.layout.simple_spinner_item,textSizeItems);
+        textSize.setAdapter(dataAdapter);
+
+        ll.addView(text);
+        ll.addView(texten);
+        ll.addView(texts);
+        ll.addView(textSize);
+        alert.setView(ll);
+
+        alert.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int which) {
+                text2add = texten.getText().toString();
+                LinearLayout t = (LinearLayout) foundationLayout.getChildAt(0);
+                LinearLayout tt = (LinearLayout) t.getChildAt(0);
+                SimpleDrawView ttt = (SimpleDrawView) tt.getChildAt(2);
+                Typeface customFont = Typeface.createFromAsset(aba.getAssets(), "arial.ttf");
+
+
+
+                ttt.setTextVariables(texten.getText().toString(),
+                        Integer.valueOf(textSize.getSelectedItem().toString()),customFont);
+                ttt.setTextMode(true);
+
+            }
+        });
+
+        alert.show();
+
+
     }
 
     public Bitmap StringToBitMap(String encodedString){

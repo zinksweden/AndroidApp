@@ -3,6 +3,7 @@
   <component name="ProjectModuleManager">
     <modules>
       <module fileurl="file://$PROJECT_DIR$/DVGC25-android.iml" filepath="$PROJECT_DIR$/DVGC25-android.iml" />
+      <module fileurl="file://$PROJECT_DIR$/H2A/H2A.iml" filepath="$PROJECT_DIR$/H2A/H2A.iml" />
       <module fileurl="file://$PROJECT_DIR$/TentaOnline.iml" filepath="$PROJECT_DIR$/TentaOnline.iml" />
       <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" />
     </modules>

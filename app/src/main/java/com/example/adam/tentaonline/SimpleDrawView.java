@@ -8,6 +8,7 @@ import android.graphics.Paint;
 import android.graphics.Path;
 import android.graphics.PorterDuff;
 import android.graphics.PorterDuffXfermode;
+import android.graphics.Typeface;
 import android.util.AttributeSet;
 import android.util.Base64;
 import android.util.Log;
@@ -26,7 +27,7 @@ public class SimpleDrawView extends View{
     //drawing path
     private Path drawPath, previewDrawPath;
     //drawing and canvas paint
-    private Paint drawPaint, canvasPaint;
+    private Paint drawPaint, canvasPaint, textPaint;
     //initial color
     private int paintColor = Color.BLACK;
     //canvas
@@ -34,8 +35,10 @@ public class SimpleDrawView extends View{
     //canvas bitmap
     private Bitmap canvasBitmap;
 
-    private boolean freeDraw=true,erase=false;
-    private String shapeType;
+    private boolean freeDraw=true,erase=false, textmode=false, mouseUpLast =false;
+    private String shapeType, text;
+    private int textSize=20;
+    private Typeface textType;
 
     private float startX,startY,endX,endY;
 
@@ -74,6 +77,10 @@ public class SimpleDrawView extends View{
 
     }
 
+    public void setTextVariables(String t,int ts, Typeface tt){text=t;textSize=ts;textType=tt;}
+
+    public void setTextMode(Boolean tm){ textmode=tm;}
+
     public void setPaintColor(int color){drawPaint.setColor(color);}
 
     public void setStrokeWidth(int width){drawPaint.setStrokeWidth(width);}
@@ -86,6 +93,8 @@ public class SimpleDrawView extends View{
 
     public boolean getErase(){return erase;}
 
+    public boolean getTextMode(){return textmode;}
+
     public Bitmap getBit(){
         return canvasBitmap;
     }
@@ -93,6 +102,7 @@ public class SimpleDrawView extends View{
     private void setupDrawing(){
         drawPath = new Path();
         previewDrawPath= new Path();
+
         drawPaint = new Paint();
         drawPaint.setColor(paintColor);
         drawPaint.setAntiAlias(true);
@@ -100,6 +110,15 @@ public class SimpleDrawView extends View{
         drawPaint.setStyle(Paint.Style.STROKE);
         drawPaint.setStrokeJoin(Paint.Join.ROUND);
         drawPaint.setStrokeCap(Paint.Cap.ROUND);
+
+        textPaint = new Paint();
+        textPaint.setColor(paintColor);
+        textPaint.setAntiAlias(true);
+        textPaint.setStrokeWidth(1);
+        textPaint.setStyle(Paint.Style.STROKE);
+        textPaint.setStrokeJoin(Paint.Join.ROUND);
+        textPaint.setStrokeCap(Paint.Cap.ROUND);
+
         canvasPaint = new Paint(Paint.DITHER_FLAG);
     }
 
@@ -113,30 +132,27 @@ public class SimpleDrawView extends View{
 
         canvas.drawBitmap(canvasBitmap, 0, 0, canvasPaint);
         //canvas.drawPath(drawPath, drawPaint);
-        if(freeDraw){
-            canvas.drawPath(drawPath, drawPaint);   //den som previewar
+        if(!mouseUpLast){
+            if(textmode){
+                canvas.drawText(text,endX,endY,textPaint);
+            }
+            else{
+                if(freeDraw){
+                    canvas.drawPath(drawPath, drawPaint);   //den som previewar
+                }
+                else{
+                    if(shapeType.equals("line")){
+                        canvas.drawLine(startX,startY,endX,endY,drawPaint); //den som previewar
+                    }
+                    else if(shapeType.equals("rectangle")){
+                        canvas.drawRect(startX,startY,endX,endY,drawPaint);
+                    }
+                }
+            }
         }
         else{
-            if(shapeType.equals("line")){
-                canvas.drawLine(startX,startY,endX,endY,drawPaint); //den som previewar
-            }
-            else if(shapeType.equals("rectangle")){
-                 canvas.drawRect(startX,startY,endX,endY,drawPaint);
-            }
+            mouseUpLast =false;}
 
-        }
-
-    }
-
-    public String BitMapToString(Bitmap bitmap) {
-        String result="";
-        if(bitmap!=null){
-            ByteArrayOutputStream baos = new ByteArrayOutputStream();
-            bitmap.compress(Bitmap.CompressFormat.PNG, 10, baos);
-            byte[] b = baos.toByteArray();
-            result = Base64.encodeToString(b, Base64.DEFAULT);
-        }
-        return result;
     }
 
     @Override
@@ -146,49 +162,62 @@ public class SimpleDrawView extends View{
         // Checks for the event that occurs
         switch (event.getAction()) {
             case MotionEvent.ACTION_DOWN:
-                if(freeDraw){
+                if(textmode){
+                    textPaint.setTextSize(textSize);
+                    textPaint.setTypeface(textType);
+                    //textPaint.setStrokeWidth(10);
+                }
+                else if(freeDraw){
                     drawPath.moveTo(touchX, touchY);
                 }
-                else{
-                    startX = event.getX();
-                    startY = event.getY();
-                    endX = event.getX();
-                    endY = event.getY();
-                }
+
+                startX = event.getX();
+                startY = event.getY();
+                endX = event.getX();
+                endY = event.getY();
+
 
                 break;
             case MotionEvent.ACTION_MOVE:
-                if(freeDraw){
+                if(freeDraw && !textmode){
                     drawPath.lineTo(touchX, touchY);
                 }
-                else{
-                    endX = event.getX();
-                    endY = event.getY();
-                }
+
+                endX = event.getX();
+                endY = event.getY();
 
 
                 break;
             case MotionEvent.ACTION_UP:
-                if(freeDraw){
-                    drawPath.lineTo(touchX, touchY);
-                    drawCanvas.drawPath(drawPath, drawPaint); //den som sparar
-                    drawPath.reset();
+                endX = event.getX();
+                endY = event.getY();
+                if(!textmode){
+                    if(freeDraw){
+                        drawPath.lineTo(touchX, touchY);
+                        drawCanvas.drawPath(drawPath, drawPaint); //den som sparar
+                        drawPath.reset();
+                    }
+                    else{
+                        if(shapeType.equals("line")){
+                            drawCanvas.drawLine(startX,startY,endX,endY,drawPaint);
+                        }
+                        else if(shapeType.equals("rectangle")){
+                            drawCanvas.drawRect(startX,startY,endX,endY,drawPaint);
+                        }
+                    }
                 }
                 else{
-                    endX = event.getX();
-                    endY = event.getY();
-                    if(shapeType.equals("line")){
-                        drawCanvas.drawLine(startX,startY,endX,endY,drawPaint);
-                    }
-                    else if(shapeType.equals("rectangle")){
-                        drawCanvas.drawRect(startX,startY,endX,endY,drawPaint);
-                    }
+                    drawCanvas.drawText(text,event.getX(),event.getY(),textPaint);
+                    mouseUpLast =true;
+                    textmode=false;
+
                 }
                 break;
             default:
                 return false;
         }
         // Force a view to draw again
+
         invalidate();
         return true;
     }

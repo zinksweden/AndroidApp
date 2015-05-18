@@ -32,7 +32,6 @@ public class StartScreen extends ActionBarActivity implements AsyncResponse {
 
             @Override
             public void onClick(View arg0) {
-                Log.d("hit","hit");
                 examId = (EditText) findViewById(R.id.editText);
                 studentId = (EditText) findViewById(R.id.editText2);
             if (!examId.getText().toString().trim().equals("") &&
@@ -64,33 +63,28 @@ public class StartScreen extends ActionBarActivity implements AsyncResponse {
 
     @Override
     public void processFinish(String output) {
-        Log.d("kommer","" + output);
-        if(!output.trim().equals("null")){
+        if(!output.trim().equals("null") && !output.trim().equals("-1")){
             final Context context = this;
-            Log.d("test1","kommer");
             Intent intent = new Intent(context, TentaOnline.class);
             intent.putExtra("examId",examId.getText().toString());
             intent.putExtra("studentId",studentId.getText().toString());
-            //intent.putExtra("exam",output);
-            Log.d("test2","kommer");
-
-            if(getIntent().getBooleanExtra("ex", false)){
-                Log.e("Hi", "It was false");
-            } else {
-                Log.e("Hi", "It was true");
-            }
-
 
             startActivity(intent);
         }
         else{
             AlertDialog.Builder builder = new AlertDialog.Builder(this);
             builder.setTitle("Failed");
-            builder.setMessage("This exam does not exist");
+            if(output.trim().equals("-1")){
+                builder.setMessage("Could not connect to database");
+            }
+            else{
+                builder.setMessage("This exam does not exist");
+            }
+
             builder.setPositiveButton("Close", new DialogInterface.OnClickListener() {
 
                 public void onClick(DialogInterface dialog, int which) {
-                dialog.dismiss();
+                    dialog.dismiss();
                 }
 
             });
