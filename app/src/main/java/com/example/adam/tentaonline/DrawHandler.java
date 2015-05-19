@@ -75,6 +75,7 @@ public class DrawHandler {
         LinearLayout drawLayout = new LinearLayout(aba);
         drawLayout.setOrientation(LinearLayout.VERTICAL);
 
+
         questionNumberLayout = cc.createQuestionTitle(("Question " + (currentQuestion + 1)
                 + " - image " + (currentDrawPage + 1)) ,30,aba);
 
@@ -99,7 +100,7 @@ public class DrawHandler {
     public SimpleDrawView createDrawPage(Bitmap b, Canvas c){
         dw=new SimpleDrawView(aba,b,c);
         RelativeLayout.LayoutParams kte = new RelativeLayout.LayoutParams(
-                RelativeLayout.LayoutParams.MATCH_PARENT,RelativeLayout.LayoutParams.MATCH_PARENT);
+                RelativeLayout.LayoutParams.MATCH_PARENT,875);
         dw.setLayoutParams(kte);
         return dw;
     }

@@ -196,6 +196,8 @@ public class TentaOnline extends ActionBarActivity implements AsyncResponse{
                 LinearLayout.LayoutParams LLParams = new LinearLayout.LayoutParams(
                         LinearLayout.LayoutParams.MATCH_PARENT,
                         LinearLayout.LayoutParams.MATCH_PARENT);
+                LLParams.setMargins(0,0,0,30);
+
                 pageLayout.setPadding(30,30,30,0);
 
                 pageLayout.setLayoutParams(LLParams);
@@ -267,6 +269,7 @@ public class TentaOnline extends ActionBarActivity implements AsyncResponse{
                     questionObject.getString("ShowOutput"), questionObject.getString("ShowCompile"),
                     questionObject.getString("HiddenCode"), i);
             }
+
         }
         catch (Throwable t){
             Log.d("Threw exception"," " + t);
