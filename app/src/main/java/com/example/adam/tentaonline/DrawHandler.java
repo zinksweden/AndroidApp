@@ -10,6 +10,7 @@ import android.graphics.Color;
 import android.graphics.Typeface;
 import android.support.v7.app.ActionBarActivity;
 import android.text.Html;
+import android.text.style.ImageSpan;
 import android.util.Base64;
 import android.util.Log;
 import android.util.SparseArray;
@@ -22,6 +23,7 @@ import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.HorizontalScrollView;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.Spinner;
@@ -349,10 +351,9 @@ public class DrawHandler {
 
         btText.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
-                if(dw.getTextMode()){
+                if (dw.getTextMode()) {
                     dw.setTextMode(false);
-                }
-                else{
+                } else {
                     textToDraw();
                 }
             }
@@ -479,7 +480,7 @@ public class DrawHandler {
                spin.setSelection(0);
            }
         }
-        Button btn = (Button) drawButtons.findViewById(100+0);
+        Button btn = (Button) drawButtons.findViewById(100 + 0);
         btn.setBackgroundResource(R.drawable.eraser);
     }
 
@@ -592,6 +593,7 @@ public class DrawHandler {
         });
 
         alert.show();
+
 
 
     }

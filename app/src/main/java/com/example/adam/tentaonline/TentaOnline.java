@@ -554,6 +554,8 @@ public class TentaOnline extends ActionBarActivity implements AsyncResponse{
             questionView.setTextSize(textSize);
         }
         pageLayout.addView(questionView);
+
+
     }
 
     /** Creates the dropdown menu with post exam button etc */
